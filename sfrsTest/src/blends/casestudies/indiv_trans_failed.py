@@ -101,15 +101,20 @@ def caller_dupli():
             shaderForInstance = "Green.shader"
             
             for ob, ob_mat in obs:
-                #---------------------------- pos, rot, sca = ob_mat.decompose()
-                #------------------------------------ reu =  rot.to_euler('XYZ')                
-                matrix_rows = '  '.join([ "%+0.4f" %element for rows in ob_mat for element in rows ])
-                # x,y,z = (math.degrees(reu.x), math.degrees(reu.y), math.degrees(reu.z))
-                #------------------------------------------------------ continue
+                pos, rot, sca = ob_mat.decompose()
+                reu = rot.to_euler('XYZ')
+                x,y,z = (math.degrees(reu.x), math.degrees(reu.y), math.degrees(reu.z))
+                
                 print ("instance {")
                 print ("        name " + theOriginalObjectName + "_" + str(Instance))
                 print ("        geometry " + theOriginalObjectName)
-                print ("        transform  row  %s " %matrix_rows )
+                print ("        transform {")
+                print ("                translate  %+0.4f   %+0.4f   %+0.4f " %(pos.x, pos.y , pos.z))
+                print ("                rotatex    %+0.4f  " %(x))
+                print ("                rotatey    %+0.4f  " %(y))
+                print ("                rotatez    %+0.4f  " %(z))
+                print ("                scaleu     %+0.4f  " %(1.0))
+                print ("                  }")
                 print ("        shader  " + shaderForInstance)
                 print ("         }")
                 print ("         ")
@@ -119,6 +124,34 @@ def caller_dupli():
                 obj_main.dupli_list_clear()
 
 
+#===============================================================================
+# instance {
+#  name nameOfInstance
+#  geometry theOriginalObjectName
+#  transform {
+#     rotatex -90
+#     scaleu 1.0
+#     translate -1.0 3.0 -1.0
+#  }
+#  shader shaderForInstance
+#  modifier modForInstance
+# }
+# 
+# 
+# transform {
+#      translate 1.0 4.6 0.3
+#      scaleu 0.5
+#   }
+# 
+# translate (translate x y z)
+# rotatex
+# rotatey
+# rotatex
+# scalex
+# scaley
+# scalez
+# scaleu
+#===============================================================================
 
 if __name__ == '__main__':
     caller_dupli()
