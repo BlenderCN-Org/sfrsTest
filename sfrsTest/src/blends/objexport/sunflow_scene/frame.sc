@@ -1,6 +1,5 @@
 /* Blender v2.67 (sub 1) OBJ File: 'OBJexportTest.blend'
    http://sunflow.sourceforge.net/ */
-mtllib frame.mtl
 v 1.000000 1.000000 -1.000000
 v 1.000000 -1.000000 -1.000000
 v -1.000000 -1.000000 -1.000000
