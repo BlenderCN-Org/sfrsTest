@@ -91,11 +91,10 @@ def caller_dupli():
                 #----------------------------------------------- print ((x,y,z))
                 #--------------------------------------------------- print (sca)
                 
-                
+
             #===================================================================
-            # to file
+            # to file 
             #===================================================================
-            
             theOriginalObjectName = "Monkey"
             Instance = 0
             shaderForInstance = "Green.shader"
@@ -103,13 +102,14 @@ def caller_dupli():
             for ob, ob_mat in obs:
                 #---------------------------- pos, rot, sca = ob_mat.decompose()
                 #------------------------------------ reu =  rot.to_euler('XYZ')                
-                matrix_rows = '  '.join([ "%+0.4f" %element for rows in ob_mat for element in rows ])
+                matrix_rows = '\t\t\t\t\n'.join([ "%+0.4f" %element for rows in ob_mat for element in rows ])
                 # x,y,z = (math.degrees(reu.x), math.degrees(reu.y), math.degrees(reu.z))
                 #------------------------------------------------------ continue
                 print ("instance {")
                 print ("        name " + theOriginalObjectName + "_" + str(Instance))
                 print ("        geometry " + theOriginalObjectName)
-                print ("        transform  row  %s " %matrix_rows )
+                print ("        transform  row " )
+                print ("%s" %matrix_rows )
                 print ("        shader  " + shaderForInstance)
                 print ("         }")
                 print ("         ")
