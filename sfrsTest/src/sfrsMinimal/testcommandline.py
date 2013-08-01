@@ -47,6 +47,117 @@ def mesh_triangulate(me):
     bm.free()
 
 
+def save_object_data( Object_data_name="", Object_data_count=0, Object_data={}, tmpdir_path=""):
+    
+    print(tmpdir_path)
+    
+    if 'vertices' in Object_data.keys() and Object_data['vertices'] != [] :
+        number_of_vertices = len(Object_data['vertices'])
+    else:
+        print("Object has no vertices")
+        return
+    
+    if 'faces' in Object_data.keys() and Object_data['faces'] != [] :
+        number_of_faces = len(Object_data['faces'])
+    else:
+        print("Object has no faces")
+        return
+    
+    if  'normal' in Object_data.keys() and Object_data['normal'] != [] :
+        if len(Object_data['normal'])!= number_of_faces :
+            print("Number of normal vector and faces don't match")
+            return
+        normal_type = 'facevarying'
+    else:
+        print("Object has no normal vector")
+        normal_type = 'none'
+    
+    if 'uv' in Object_data.keys()  and Object_data['uv'] != [] :
+        if len(Object_data['uv'])!= number_of_faces :
+            print("Number of uv's and faces don't match")
+            return
+        uv_type = 'facevarying'
+    else:
+        print("Object has no uv's defined")
+        uv_type = 'none'
+    
+   
+    if 'matindex' in Object_data.keys()  and Object_data['matindex'] != [] :
+        if len(Object_data['matindex'])!= number_of_faces :
+            print("Number of matindex's and faces don't match")
+            return
+        matindex_type = 'face_shaders'
+    else:
+        print("Object has no face shaders's defined")
+        matindex_type = ''
+        
+        
+    TAB = '    '
+    indent = 0
+    
+    indent += 1
+    print("%s %s %d" % ( TAB*indent , 'points' , number_of_vertices))
+    
+    indent += 1
+    for item in Object_data['vertices']:
+        print("%s %s %s %s" % ( TAB*indent , item[0] , item[1] , item[2]))
+    indent -= 2
+    
+    
+    indent += 1
+    print("%s %s %d" % ( TAB*indent , 'triangles' , number_of_faces))
+    
+    indent += 1
+    for item in Object_data['faces']:
+        print("%s  %s  %s  %s" % ( TAB*indent , item[0] , item[1] , item[2]))
+    indent -= 2
+    
+    indent += 1
+    print("%s %s %s" % ( TAB*indent , 'normals' , normal_type))
+    if normal_type == 'none':        
+        indent -= 1
+    else:        
+        indent += 1
+        for item in Object_data['normal']:
+            concat = ' '.join(item)
+            print("%s %s" % ( TAB*indent , concat))
+        indent -= 2
+
+    indent += 1
+    print("%s %s %s" % ( TAB*indent , 'uvs' , uv_type))
+    if uv_type == 'none':        
+        indent -= 1
+    else:        
+        indent += 1
+        for item in Object_data['uv']:
+            concat = ' '.join(item)
+            print("%s %s" % ( TAB*indent , concat))
+        indent -= 2
+    
+    
+    indent += 1
+    print("%s %s %s" % ( TAB*indent , '' , matindex_type))
+    if matindex_type == '':                
+        indent -= 1
+    else:         
+        indent += 1
+        for item in Object_data['matindex']:
+            print("%s %s" % ( TAB*indent , item))
+        indent -= 2
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
 def write_file(filepath, objects, scene,):
     """
     Basic write function. The context and options must be already set
@@ -63,8 +174,7 @@ def write_file(filepath, objects, scene,):
     EXPORT_KEEP_VERT_ORDER=False
     EXPORT_GLOBAL_MATRIX=None
     
-    
-    
+
 
     if EXPORT_GLOBAL_MATRIX is None:
         EXPORT_GLOBAL_MATRIX = mathutils.Matrix()
@@ -72,25 +182,16 @@ def write_file(filepath, objects, scene,):
     def veckey3d(v):
         return round(v.x, 6), round(v.y, 6), round(v.z, 6)
 
+    def veckey2d(v):
+       return round(v[0], 6), round(v[1], 6)
+
     #===========================================================================
     # def veckey2d(v):
-    #    return round(v[0], 6), round(v[1], 6)
+    #    x,y = v
+    #    return "%+0.4f  %+0.4f " %(x,y)
     #===========================================================================
 
-    def veckey2d(v):
-        x,y = v
-        return "%+0.4f  %+0.4f " %(x,y)
-
-    print('OBJ Export path: %r' % filepath)
-
     time1 = time.time()
-
-    file_out = open(filepath, "w", encoding="utf8", newline="\n")
-    fw = file_out.write
-
-    # Write Header
-    fw('/* Blender v%s OBJ File: %r\n' % (bpy.app.version_string, os.path.basename(bpy.data.filepath)))
-    fw('   http://sunflow.sourceforge.net/ */\n')
 
 
     # Get all meshes
@@ -115,7 +216,13 @@ def write_file(filepath, objects, scene,):
         else:
             obs = [(ob_main, ob_main.matrix_world)]
 
+        Object_data_count = 0
+        Object_data_name  = ob_main.name
+        
         for ob, ob_mat in obs:
+            
+            Object_data = {}
+            Object_data_count += 1
             
             #===================================================================
             # # Bezier Patches supported on sunflow implement here
@@ -217,25 +324,19 @@ def write_file(filepath, objects, scene,):
 
                 del sort_func
 
-            # Create the temp file for obj data here
-            
-            
-            print("---------------------------verts---------------------------")
-            
-            # Vert
+            # Export Vertex Data
+            Object_data['vertices'] = []
             for v in me_verts:
-                fw('v %.6f %.6f %.6f\n' % v.co[:])
-                print("%+0.4f  %+0.4f %+0.4f "% v.co[:])
-                
-            print("---------------------------faces---------------------------")
+                coordinate_str = [ "%+0.4f" %coordinate for coordinate in v.co[:] ]
+                Object_data['vertices'].append(coordinate_str)
             
+            # Export Faces Data
+            Object_data['faces'] = []
             for face , f_index in face_index_pairs:
-                print ("%s %s %s "%(face.vertices[:] ))
+                coordinate_str = [ "%06d" %coordinate for coordinate in face.vertices[:] ]
+                Object_data['faces'].append(coordinate_str)
             
-                
-                
 
-             
             # UV
             if faceuv:
                 facevarying = [None]*len(face_index_pairs)
@@ -245,57 +346,100 @@ def write_file(filepath, objects, scene,):
                         uv = uv_layer[l_index].uv 
                         uvkey = veckey2d(uv)
                         store.append(uvkey)
-                    rep = ''.join(store)
-                    facevarying[f_index] = rep
+                    facevarying[f_index] = store
 
 
-
-                for f, f_index in face_index_pairs:
-                    print(facevarying[f_index])
+                # Export UV coordinates 
+                Object_data['uv'] = []
+                for f, f_index in face_index_pairs:                    
+                    coordinate_str = [ "%+0.4f" %coordinate for pair in facevarying[f_index] for coordinate in pair ]
+                    Object_data['uv'].append(coordinate_str)
 
                          
-            print("---------------------------normals---------------------------")
                  
             # NORMAL, Smooth/Non smoothed.
             if EXPORT_NORMALS:
+                facenormals = []
                 for f, f_index in face_index_pairs:
                     if f.use_smooth:
                         face_vertex = []
                         for v_idx in f.vertices:
                             v = me_verts[v_idx]
                             noKey = veckey3d(v.normal)                            
-                            face_vertex.append(('%+0.4f %+0.4f %+0.4f' % noKey))                            
-                        print('%s %s %s' % (face_vertex[0],face_vertex[1],face_vertex[2]))
+                            face_vertex.append(noKey)                            
+                        facenormals.append(face_vertex)
                     else:
                         # Hard, 1 normal from the face.
                         noKey = veckey3d(f.normal)
-                        expand = ('%+0.4f %+0.4f %+0.4f' % (noKey))              
-                        print(" %s %s %s " %(expand,expand,expand))
+                        facenormals.append([noKey,noKey,noKey])
                             
+                # Export Normal vector 
+                Object_data['normal'] = []
+                for n_index in facenormals:                    
+                    coordinate_str = [ "%+0.4f" %coordinate for pair in n_index for coordinate in pair ]
+                    Object_data['normal'].append(coordinate_str)
+                    
+                    
+                    
                             
-            print("---------------------------matIndex---------------------------")
             # MATERIAL INDEX
             if len(materials) > 1:
+                # Export Normal vector 
+                Object_data['matindex'] = []
                 for f, f_index in face_index_pairs:
-                    face_material_index = f.material_index
-                    print("%d" %face_material_index)
+                    coordinate_str =  "%02d" %f.material_index 
+                    Object_data['matindex'].append(coordinate_str)
                                          
-
+            # f_images
             if not faceuv:
                 f_image = None
                 
             # clean up
             bpy.data.meshes.remove(me)
+            
+            # save to temp file
+            save_object_data(Object_data_name ,Object_data_count , Object_data ,tmpdir_path="")
 
         if ob_main.dupli_type != 'NONE':
             ob_main.dupli_list_clear()
 
-    file_out.close()
-
  
     # copy all collected files.
-
     print("OBJ Export time: %.2f" % (time.time() - time1))
+
+
+#------------------------------------------------------------------------------ 
+#===============================================================================
+# 
+#    print('OBJ Export path: %r' % filepath)
+#    
+#    file_out = open(filepath, "w", encoding="utf8", newline="\n")
+#    fw = file_out.write
+# 
+#    # Write Header
+#    fw('/* Blender v%s OBJ File: %r\n' % (bpy.app.version_string, os.path.basename(bpy.data.filepath)))
+#    fw('   http://sunflow.sourceforge.net/ */\n')
+# 
+#    file_out.close()
+#===============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def _write(context, filepath,
