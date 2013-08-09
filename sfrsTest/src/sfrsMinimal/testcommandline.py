@@ -177,7 +177,7 @@ def write_file(filepath, objects, scene,):
         return round(v.x, 6), round(v.y, 6), round(v.z, 6)
 
     def veckey2d(v):
-       return round(v[0], 6), round(v[1], 6)
+        return round(v[0], 6), round(v[1], 6)
 
     #===========================================================================
     # def veckey2d(v):
