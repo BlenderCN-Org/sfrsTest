@@ -22,6 +22,12 @@
 # Exporter Version                    0.0.1
 # Created on                          31-Jul-2013
 # Author                              NodeBench
+#                                    This code is heavily edited version of 
+#                                    blender's original wavefront 
+#                                    obj exporter code so thanks and 
+#                                    credits goes to blender developers 
+#                                    and the obj exporter author 
+#                                    Campbell Barton
 # --------------------------------------------------------------------------
 
 import os
@@ -146,18 +152,6 @@ def save_object_data( Object_data_name="", Object_data_count=0, Object_data={}, 
         indent -= 2
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
 def write_file(filepath, objects, scene,):
     """
     Basic write function. The context and options must be already set
