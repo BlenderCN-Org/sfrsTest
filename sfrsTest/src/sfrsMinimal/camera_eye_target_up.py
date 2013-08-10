@@ -53,7 +53,6 @@ def getCameraPos():
     return (eye , target , up)
 
 def getFOV():
-
     C = bpy.context
     r = C.scene.objects['Camera'].data.angle
     return  math.degrees(r)
