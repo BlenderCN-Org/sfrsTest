@@ -30,18 +30,20 @@ import math
 import mathutils
 
 
-
-
-
-def test_working():
-    print("This will give the collection of materials in the scene.")
-    print( bpy.data.materials )
-    print("This will give material on a particular object 'CUBE'")
-    print(bpy.context.scene.objects['Cube'].data.materials[:])
-    print("This will give all the material slots on that object")
-    print(bpy.context.scene.objects['Cube'].material_slots[:])
-    print("This wil give the material assigned to a particular slot")
-    print(bpy.context.scene.objects['Cube'].material_slots[0].material)
+#===============================================================================
+# #===============================================================================
+# # test_working
+# #===============================================================================
+# def test_working():
+#     print("This will give the collection of materials in the scene.")
+#     print( bpy.data.materials )
+#     print("This will give material on a particular object 'CUBE'")
+#     print(bpy.context.scene.objects['Cube'].data.materials[:])
+#     print("This will give all the material slots on that object")
+#     print(bpy.context.scene.objects['Cube'].material_slots[:])
+#     print("This wil give the material assigned to a particular slot")
+#     print(bpy.context.scene.objects['Cube'].material_slots[0].material)
+#===============================================================================
     
 
 
@@ -295,63 +297,7 @@ def getShadersInScene():
             continue
 
         create_shader_block(mat)
-            
-        #=======================================================================
-        # 
-        # 
-        # # TYPE
-        # 'type',
-        # # CONST
-        # 'diffuseColor',
-        # 'constantEmit',
-        # 'uberDiffBlend',
-        # # DIFF
-        # #--------------------------------------------------- 'diffuseColor',
-        # # PHON
-        # #--------------------------------------------------- 'diffuseColor',
-        # 'specularColor',
-        # ['phongSamples',
-        # 'phongSpecHardness'],
-        # # SHIN
-        # #--------------------------------------------------- 'diffuseColor',
-        # 'shinyReflection',
-        # 'shinyExponent',
-        # # GLAS
-        # 'glassETA',
-        # #--------------------------------------------------- 'diffuseColor',
-        # 'glassAbsDistance',
-        # 'glassAbsColor',
-        # # MIRR
-        # 'mirrorReflection',
-        # # WARD
-        # #--------------------------------------------------- 'diffuseColor',
-        # #-------------------------------------------------- 'specularColor',
-        # ['wardRoughX',
-        # 'wardRoughY'],
-        # 'wardSamples',
-        # # AO
-        # 'ambientBright',
-        # 'ambientDark',
-        # ['ambientSamples',
-        # 'ambientDistance'],
-        # #UBER
-        # #--------------------------------------------------- 'diffuseColor',
-        # 
-        # #-------------------------------------------------- 'specularColor',
-        # 'uberSpecBlend',
-        # 'uberGlossy',
-        # 'uberSamples',
-        # # LIGHT
-        # #--------------------------------------------------- 'diffuseColor',
-        # 'lightRadiance',
-        # 'lightSamples',
-        # # JANI
-        # 'janinoPath',
-        # 
-        #=======================================================================
-        
-        
-
+ 
 def working():
     getShadersInScene()
 
