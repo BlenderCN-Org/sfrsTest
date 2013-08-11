@@ -115,10 +115,9 @@ def getActiveCamera(scene=None):
         act_cam.append("%s %s %s" %(space* indent , "type" , cam.cameraType))
         
         if cam.cameraType in [ "pinhole" , "thinlens" ]:            
-            if cam.objectMBlur:
+            if ( cam.objectMBlur | cam.cameraMBlur ):
                 act_cam.append("%s %s %s" %(space* indent , "shutter", "0 1"))
             if cam.cameraMBlur :
-                act_cam.append("%s %s %s" %(space* indent , "shutter", "0 1"))
                 act_cam.append("%s %s %s" %(space* indent , "steps", cam.cameraMBlurSteps))
                 act_cam.append("%s %s %s" %(space* indent , "times", "0 1"))                
                 if as_matrix:
