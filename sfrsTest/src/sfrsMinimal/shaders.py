@@ -101,7 +101,7 @@ def create_shader_block(mat):
     
     act_mat.append("%s %s %s" %(space* indent , "shader", "{"))
     indent += 1
-    act_mat.append("%s %s %s" %(space* indent , "name", name ))
+    act_mat.append("%s %s %s" %(space* indent , "name", '"'+name+'"' ))
     act_mat.append("%s %s %s" %(space* indent , "type", sfmat.type ))
     if sfmat.type == 'constant':        
         act_mat.append("%s %s %s" %(space* indent , "color  ", "{")) 
@@ -287,30 +287,30 @@ def create_shader_block(mat):
         indent -= 1
         type_meshlight =  True
     
-    #TODO: need to write module for modifiers
+
     act_mod = []
     if  texture_found(mat , 2) :        
         act_mod.append("%s %s %s" %(space* indent , "modifier", "{"))
         indent += 1
-        act_mod.append("%s %s %s" %(space* indent , "name ", name ))
+        act_mod.append("%s %s %s" %(space* indent , "name ", '"'+name+'"' ))
         act_mod.append("%s %s %s" %(space* indent , "type", "bump"))
         act_mod.append("%s %s %s" %(space* indent , "texture ", texture_path(mat , texture_found(mat , 2)) ))
-        act_mod.append("%s %s %s" %(space* indent , "scale", mat.texture_slots[texture_found(mat , 2) -1].normal_factor))
+        act_mod.append("%s %s %s" %(space* indent , "scale", "%+0.4f" %(mat.texture_slots[texture_found(mat , 2) -1].normal_factor)))
         act_mod.append("%s %s %s" %(space* indent , "}", ""))
         indent -= 1
         type_modifier=True
     elif  texture_found(mat , 3)  :        
         act_mod.append("%s %s %s" %(space* indent , "modifier", "{"))
         indent += 1
-        act_mod.append("%s %s %s" %(space* indent , "name ", name ))
+        act_mod.append("%s %s %s" %(space* indent , "name ", '"'+name+'"' ))
         act_mod.append("%s %s %s" %(space* indent , "type", "normalmap"))
         act_mod.append("%s %s %s" %(space* indent , "texture ", texture_path(mat , texture_found(mat , 3)) ))
-        act_mod.append("%s %s %s" %(space* indent , "scale", mat.texture_slots[texture_found(mat , 3) -1].disaplacement_factor))
+        act_mod.append("%s %s %s" %(space* indent , "scale", "%+0.4f" %(mat.texture_slots[texture_found(mat , 3) -1].displacement_factor) ))
         act_mod.append("%s %s %s" %(space* indent , "}", ""))
         indent -= 1
         type_modifier=True
         
-    for eachline in act_mat:
+    for eachline in act_mod:
         print(eachline)
         
     report = {}
@@ -345,15 +345,20 @@ def mix( SceneMaterials, shaders , name):
 def getShadersInScene():
     scene_mat = bpy.data.materials
     SceneMaterials = {}
+    SceneMaterials['exportable'] = set()
     for mat in scene_mat:
         if mat.users <= 0 :
             print("Material has no owner")
             continue
-        if mat.get('sunflow_material') is None:
+        if not hasattr(mat , 'sunflow_material'):
             print("Not sunflow material")
             continue
         shaders = create_shader_block(mat)
-        mix(SceneMaterials , shaders , mat.name)        
+        mix(SceneMaterials , shaders , mat.name)   
+    
+    for each,shdr in SceneMaterials['shader'].items():
+        for eachline in shdr:
+            print (eachline)     
  
 def working():
     getShadersInScene()
