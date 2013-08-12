@@ -48,22 +48,22 @@ import mathutils
 
 
 def tr_color_str(_color):
-    colors = [ "%+0.4f" %channel for channel in _color ]
+    colors = [ "%+0.4f" % channel for channel in _color ]
     return '  '.join(colors)
 
 
-def texture_found(mat,mat_type):
+def texture_found(mat, mat_type):
     slots = len(mat.texture_slots)
     if slots <= 0:
         return 0
     for mat_slot in range(slots):
         slot = mat.texture_slots[mat_slot]
-        #print (slot)
+        # print (slot)
         if not slot:
             continue
         if not (hasattr(slot , 'texture') & (slot.texture is not None)):
             continue
-        if not ((slot.texture_coords == 'UV') &(slot.texture.type == 'IMAGE')):
+        if not ((slot.texture_coords == 'UV') & (slot.texture.type == 'IMAGE')):
             continue
         if not (hasattr(slot.texture , 'image') & (slot.texture.image is not None)):
             continue
@@ -72,21 +72,21 @@ def texture_found(mat,mat_type):
         if (slot.texture.image.filepath is None):
             continue
         path = mat.texture_slots[mat_slot].texture.image.filepath
-        #TODO: resolve relative path 
+        # TODO: resolve relative path 
         if not os.path.exists(path):
             continue
         if (slot.use_map_color_diffuse & (mat_type == 0)):
-            return mat_slot +1
+            return mat_slot + 1
         if (slot.use_map_color_spec & (mat_type == 1)):
-            return mat_slot +1
+            return mat_slot + 1
         if (slot.use_map_normal & (mat_type == 2)):
-            return mat_slot +1
+            return mat_slot + 1
         if (slot.use_map_displacement & (mat_type == 3)):
-            return mat_slot +1
+            return mat_slot + 1
     return 0
 
 def texture_path(mat, mat_slot):
-    return mat.texture_slots[mat_slot -1].texture.image.filepath
+    return mat.texture_slots[mat_slot - 1].texture.image.filepath
 
 
 def create_shader_block(mat):
@@ -95,220 +95,220 @@ def create_shader_block(mat):
     act_mat = [] 
     indent = 0
     space = "        "
-    type_meshlight = False
+    type_meshlight = False 
     type_shader = False
     type_modifier = False
     
-    act_mat.append("%s %s %s" %(space* indent , "shader", "{"))
+    act_mat.append("%s %s %s" % (space * indent , "shader", "{"))
     indent += 1
-    act_mat.append("%s %s %s" %(space* indent , "name", '"'+name+'"' ))
-    act_mat.append("%s %s %s" %(space* indent , "type", sfmat.type ))
+    act_mat.append("%s %s %s" % (space * indent , "name", '"' + name + '"'))
+    act_mat.append("%s %s %s" % (space * indent , "type", sfmat.type))
     if sfmat.type == 'constant':        
-        act_mat.append("%s %s %s" %(space* indent , "color  ", "{")) 
+        act_mat.append("%s %s %s" % (space * indent , "color  ", "{")) 
         indent += 1
-        act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str(sfmat.constantEmit * sfmat.diffuseColor) )) 
-        act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+        act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.constantEmit * sfmat.diffuseColor))) 
+        act_mat.append("%s %s %s" % (space * indent , "}", "")) 
         indent -= 1
         type_shader = True
     elif sfmat.type == 'diffuse':   
-        if texture_found(mat , 0):                  # 0 means diffuse channel
+        if texture_found(mat , 0):  # 0 means diffuse channel
             texpath = '"' + texture_path(mat , texture_found(mat , 0)) + '"'
-            act_mat.append("%s %s %s" %(space* indent , "texture ", texpath ))      
+            act_mat.append("%s %s %s" % (space * indent , "texture ", texpath))      
         else:
-            act_mat.append("%s %s %s" %(space* indent , "color  ", "{")) 
+            act_mat.append("%s %s %s" % (space * indent , "color  ", "{")) 
             indent += 1
-            act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.diffuseColor) )) 
-            act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+            act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.diffuseColor))) 
+            act_mat.append("%s %s %s" % (space * indent , "}", "")) 
             indent -= 1
         type_shader = True
     elif sfmat.type == 'phong':     
-        if texture_found(mat , 0):                  # 0 means diffuse channel
+        if texture_found(mat , 0):  # 0 means diffuse channel
             texpath = '"' + texture_path(mat , texture_found(mat , 0)) + '"'
-            act_mat.append("%s %s %s" %(space* indent , "texture ", texpath ))    
+            act_mat.append("%s %s %s" % (space * indent , "texture ", texpath))    
         else:
-            act_mat.append("%s %s %s" %(space* indent , "diff  ", "{")) 
+            act_mat.append("%s %s %s" % (space * indent , "diff  ", "{")) 
             indent += 1
-            act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.diffuseColor) )) 
-            act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+            act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.diffuseColor))) 
+            act_mat.append("%s %s %s" % (space * indent , "}", "")) 
             indent -= 1
         
-        #spec channel
-        act_mat.append("%s %s %s" %(space* indent , "spec  ", "{")) 
+        # spec channel
+        act_mat.append("%s %s %s" % (space * indent , "spec  ", "{")) 
         indent += 1
-        act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.specularColor) )) 
-        act_mat.append("%s %s %s" %(space* indent , "}", sfmat.phongSpecHardness )) 
+        act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.specularColor))) 
+        act_mat.append("%s %s %s" % (space * indent , "}", sfmat.phongSpecHardness)) 
         indent -= 1
         
-        act_mat.append("%s %s %s" %(space* indent , "samples", sfmat.phongSamples )) 
+        act_mat.append("%s %s %s" % (space * indent , "samples", sfmat.phongSamples)) 
         type_shader = True
     elif sfmat.type == 'shiny':  
-        if texture_found(mat , 0):                  # 0 means diffuse channel
+        if texture_found(mat , 0):  # 0 means diffuse channel
             texpath = '"' + texture_path(mat , texture_found(mat , 0)) + '"'
-            act_mat.append("%s %s %s" %(space* indent , "texture ", texpath ))        
+            act_mat.append("%s %s %s" % (space * indent , "texture ", texpath))        
         else:
-            act_mat.append("%s %s %s" %(space* indent , "diff  ", "{")) 
+            act_mat.append("%s %s %s" % (space * indent , "diff  ", "{")) 
             indent += 1
-            act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.diffuseColor) )) 
-            act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+            act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.diffuseColor))) 
+            act_mat.append("%s %s %s" % (space * indent , "}", "")) 
             indent -= 1           
            
         if sfmat.shinyExponent :
-            act_mat.append("%s %s %s" %(space* indent , "refl  ", "%+0.4f" %math.pow(10,4*sfmat.shinyReflection) ))     
+            act_mat.append("%s %s %s" % (space * indent , "refl  ", "%+0.4f" % math.pow(10, 4 * sfmat.shinyReflection)))     
         else:
-            act_mat.append("%s %s %s" %(space* indent , "refl  ", "%+0.4f" %sfmat.shinyReflection ))     
+            act_mat.append("%s %s %s" % (space * indent , "refl  ", "%+0.4f" % sfmat.shinyReflection))     
         
         type_shader = True
     elif sfmat.type == 'glass':        
 
-        act_mat.append("%s %s %s" %(space* indent , "eta  ", "%+0.4f" %sfmat.glassETA )) 
+        act_mat.append("%s %s %s" % (space * indent , "eta  ", "%+0.4f" % sfmat.glassETA)) 
 
-        act_mat.append("%s %s %s" %(space* indent , "color ", "{")) 
+        act_mat.append("%s %s %s" % (space * indent , "color ", "{")) 
         indent += 1
-        act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.diffuseColor) )) 
-        act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+        act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.diffuseColor))) 
+        act_mat.append("%s %s %s" % (space * indent , "}", "")) 
         indent -= 1
    
-        act_mat.append("%s %s %s" %(space* indent , "absorbtion.distance", "%+0.4f" %sfmat.glassAbsDistance )) 
+        act_mat.append("%s %s %s" % (space * indent , "absorbtion.distance", "%+0.4f" % sfmat.glassAbsDistance)) 
         
-        act_mat.append("%s %s %s" %(space* indent , "absorbtion.color", "{")) 
+        act_mat.append("%s %s %s" % (space * indent , "absorbtion.color", "{")) 
         indent += 1
-        act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.glassAbsColor) )) 
-        act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+        act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.glassAbsColor))) 
+        act_mat.append("%s %s %s" % (space * indent , "}", "")) 
         indent -= 1
         type_shader = True        
     elif sfmat.type == 'mirror':
         
-        act_mat.append("%s %s %s" %(space* indent , "refl  ", "{")) 
+        act_mat.append("%s %s %s" % (space * indent , "refl  ", "{")) 
         indent += 1
-        act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.mirrorReflection) )) 
-        act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+        act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.mirrorReflection))) 
+        act_mat.append("%s %s %s" % (space * indent , "}", "")) 
         indent -= 1
         type_shader = True
     elif sfmat.type == 'ward':     
-        if texture_found(mat , 0):                  # 0 means diffuse channel
+        if texture_found(mat , 0):  # 0 means diffuse channel
             texpath = '"' + texture_path(mat , texture_found(mat , 0)) + '"'
-            act_mat.append("%s %s %s" %(space* indent , "texture ", texpath ))    
+            act_mat.append("%s %s %s" % (space * indent , "texture ", texpath))    
         else:
-            act_mat.append("%s %s %s" %(space* indent , "diff  ", "{")) 
+            act_mat.append("%s %s %s" % (space * indent , "diff  ", "{")) 
             indent += 1
-            act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.diffuseColor) )) 
-            act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+            act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.diffuseColor))) 
+            act_mat.append("%s %s %s" % (space * indent , "}", "")) 
             indent -= 1
         
-        #spec channel
-        act_mat.append("%s %s %s" %(space* indent , "spec  ", "{")) 
+        # spec channel
+        act_mat.append("%s %s %s" % (space * indent , "spec  ", "{")) 
         indent += 1
-        act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.specularColor) ))        
-        act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+        act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.specularColor)))        
+        act_mat.append("%s %s %s" % (space * indent , "}", "")) 
         indent -= 1
         
-        act_mat.append("%s %s %s" %(space* indent , "rough ", "%+0.4f   %+0.4f" %(sfmat.wardRoughX  , sfmat.wardRoughY )  )) 
-        act_mat.append("%s %s %s" %(space* indent , "samples", sfmat.wardSamples )) 
+        act_mat.append("%s %s %s" % (space * indent , "rough ", "%+0.4f   %+0.4f" % (sfmat.wardRoughX  , sfmat.wardRoughY))) 
+        act_mat.append("%s %s %s" % (space * indent , "samples", sfmat.wardSamples)) 
     
         type_shader = True
         
     elif sfmat.type == 'amb-occ':   
-        if texture_found(mat , 0):                  # 0 means diffuse channel
+        if texture_found(mat , 0):  # 0 means diffuse channel
             texpath = '"' + texture_path(mat , texture_found(mat , 0)) + '"'
-            act_mat.append("%s %s %s" %(space* indent , "texture ", texpath ))      
+            act_mat.append("%s %s %s" % (space * indent , "texture ", texpath))      
         else:
-            act_mat.append("%s %s %s" %(space* indent , "bright  ", "{")) 
+            act_mat.append("%s %s %s" % (space * indent , "bright  ", "{")) 
             indent += 1
-            act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.ambientBright) )) 
-            act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+            act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.ambientBright))) 
+            act_mat.append("%s %s %s" % (space * indent , "}", "")) 
             indent -= 1
         
-        #spec channel
-        act_mat.append("%s %s %s" %(space* indent , "dark   ", "{")) 
+        # spec channel
+        act_mat.append("%s %s %s" % (space * indent , "dark   ", "{")) 
         indent += 1
-        act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.ambientDark) ))
-        act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+        act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.ambientDark)))
+        act_mat.append("%s %s %s" % (space * indent , "}", "")) 
         indent -= 1
         
-        act_mat.append("%s %s %s" %(space* indent , "samples", sfmat.ambientSamples  )) 
-        act_mat.append("%s %s %s" %(space* indent , "dist  ", "%+0.4f" %(sfmat.ambientDistance)  )) 
+        act_mat.append("%s %s %s" % (space * indent , "samples", sfmat.ambientSamples)) 
+        act_mat.append("%s %s %s" % (space * indent , "dist  ", "%+0.4f" % (sfmat.ambientDistance))) 
         type_shader = True   
         
     elif sfmat.type == 'uber':        
-        #diffuse channel
-        act_mat.append("%s %s %s" %(space* indent , "diff  ", "{")) 
+        # diffuse channel
+        act_mat.append("%s %s %s" % (space * indent , "diff  ", "{")) 
         indent += 1
-        act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.diffuseColor) )) 
-        act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+        act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.diffuseColor))) 
+        act_mat.append("%s %s %s" % (space * indent , "}", "")) 
         indent -= 1
-        #diffuse texture
-        if  texture_found(mat , 0):                  # 0 means diffuse channel
+        # diffuse texture
+        if  texture_found(mat , 0):  # 0 means diffuse channel
             texpath = '"' + texture_path(mat , texture_found(mat , 0)) + '"'
-            act_mat.append("%s %s %s" %(space* indent , "diff.texture ", texpath )) 
+            act_mat.append("%s %s %s" % (space * indent , "diff.texture ", texpath)) 
             
-        act_mat.append("%s %s %s" %(space* indent , "diff.blend", "%+0.4f" %(sfmat.uberDiffBlend )) )
+        act_mat.append("%s %s %s" % (space * indent , "diff.blend", "%+0.4f" % (sfmat.uberDiffBlend)))
     
-        #spec channel
-        act_mat.append("%s %s %s" %(space* indent , "spec  ", "{")) 
+        # spec channel
+        act_mat.append("%s %s %s" % (space * indent , "spec  ", "{")) 
         indent += 1
-        act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.specularColor) ))        
-        act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+        act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.specularColor)))        
+        act_mat.append("%s %s %s" % (space * indent , "}", "")) 
         indent -= 1
         
-        #spec texture
-        if  texture_found(mat , 1):                  # 1 means spec channel
+        # spec texture
+        if  texture_found(mat , 1):  # 1 means spec channel
             texpath = '"' + texture_path(mat , texture_found(mat , 1)) + '"'
-            act_mat.append("%s %s %s" %(space* indent , "spec.texture ", texpath )) 
+            act_mat.append("%s %s %s" % (space * indent , "spec.texture ", texpath)) 
             
-        act_mat.append("%s %s %s" %(space* indent , "spec.blend", "%+0.4f" %(sfmat.uberSpecBlend )) ) 
+        act_mat.append("%s %s %s" % (space * indent , "spec.blend", "%+0.4f" % (sfmat.uberSpecBlend))) 
     
     
-        act_mat.append("%s %s %s" %(space* indent , "glossy ", "%+0.4f" %(sfmat.uberGlossy )  )) 
-        act_mat.append("%s %s %s" %(space* indent , "samples", sfmat.uberSamples )) 
+        act_mat.append("%s %s %s" % (space * indent , "glossy ", "%+0.4f" % (sfmat.uberGlossy))) 
+        act_mat.append("%s %s %s" % (space * indent , "samples", sfmat.uberSamples)) 
     
         type_shader = True
-    act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+    act_mat.append("%s %s %s" % (space * indent , "}", "")) 
     indent -= 1
         
     # special types -- not directly found in sunflow usual;
     if sfmat.type == "janino" :
         act_mat = []
-        path = '"'+sfmat.janinoPath+ '"'
-        act_mat.append("%s %s %s" %(space* indent , "include", path )) 
+        path = '"' + sfmat.janinoPath + '"'
+        act_mat.append("%s %s %s" % (space * indent , "include", path)) 
         
     elif sfmat.type == "light" :
         act_mat = []
                 
         indent += 1
-        #diffuse channel        
-        act_mat.append("%s %s %s" %(space* indent , "emit  ", "{")) 
+        # diffuse channel        
+        act_mat.append("%s %s %s" % (space * indent , "emit  ", "{")) 
         indent += 1
-        act_mat.append("%s %s %s" %(space* indent , '"sRGB nonlinear"', tr_color_str( sfmat.diffuseColor) )) 
-        act_mat.append("%s %s %s" %(space* indent , "}", "" )) 
+        act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.diffuseColor))) 
+        act_mat.append("%s %s %s" % (space * indent , "}", "")) 
         indent -= 1
         
-        act_mat.append("%s %s %s" %(space* indent , "radiance", "%+0.4f" %(sfmat.lightRadiance )  )) 
-        act_mat.append("%s %s %s" %(space* indent , "samples ", sfmat.lightSamples )) 
+        act_mat.append("%s %s %s" % (space * indent , "radiance", "%+0.4f" % (sfmat.lightRadiance))) 
+        act_mat.append("%s %s %s" % (space * indent , "samples ", sfmat.lightSamples)) 
         indent -= 1
-        type_meshlight =  True
+        type_meshlight = True
     
 
     act_mod = []
     if  texture_found(mat , 2) :        
-        act_mod.append("%s %s %s" %(space* indent , "modifier", "{"))
+        act_mod.append("%s %s %s" % (space * indent , "modifier", "{"))
         indent += 1
-        act_mod.append("%s %s %s" %(space* indent , "name ", '"'+name+'"' ))
-        act_mod.append("%s %s %s" %(space* indent , "type", "bump"))
-        act_mod.append("%s %s %s" %(space* indent , "texture ", texture_path(mat , texture_found(mat , 2)) ))
-        act_mod.append("%s %s %s" %(space* indent , "scale", "%+0.4f" %(mat.texture_slots[texture_found(mat , 2) -1].normal_factor)))
-        act_mod.append("%s %s %s" %(space* indent , "}", ""))
+        act_mod.append("%s %s %s" % (space * indent , "name ", '"' + name + '"'))
+        act_mod.append("%s %s %s" % (space * indent , "type", "bump"))
+        act_mod.append("%s %s %s" % (space * indent , "texture ", texture_path(mat , texture_found(mat , 2))))
+        act_mod.append("%s %s %s" % (space * indent , "scale", "%+0.4f" % (mat.texture_slots[texture_found(mat , 2) - 1].normal_factor)))
+        act_mod.append("%s %s %s" % (space * indent , "}", ""))
         indent -= 1
-        type_modifier=True
+        type_modifier = True
     elif  texture_found(mat , 3)  :        
-        act_mod.append("%s %s %s" %(space* indent , "modifier", "{"))
+        act_mod.append("%s %s %s" % (space * indent , "modifier", "{"))
         indent += 1
-        act_mod.append("%s %s %s" %(space* indent , "name ", '"'+name+'"' ))
-        act_mod.append("%s %s %s" %(space* indent , "type", "normalmap"))
-        act_mod.append("%s %s %s" %(space* indent , "texture ", texture_path(mat , texture_found(mat , 3)) ))
-        act_mod.append("%s %s %s" %(space* indent , "scale", "%+0.4f" %(mat.texture_slots[texture_found(mat , 3) -1].displacement_factor) ))
-        act_mod.append("%s %s %s" %(space* indent , "}", ""))
+        act_mod.append("%s %s %s" % (space * indent , "name ", '"' + name + '"'))
+        act_mod.append("%s %s %s" % (space * indent , "type", "normalmap"))
+        act_mod.append("%s %s %s" % (space * indent , "texture ", texture_path(mat , texture_found(mat , 3))))
+        act_mod.append("%s %s %s" % (space * indent , "scale", "%+0.4f" % (mat.texture_slots[texture_found(mat , 3) - 1].displacement_factor)))
+        act_mod.append("%s %s %s" % (space * indent , "}", ""))
         indent -= 1
-        type_modifier=True
+        type_modifier = True
         
     for eachline in act_mod:
         print(eachline)
@@ -334,12 +334,12 @@ def create_shader_block(mat):
     
     return report
         
-def mix( SceneMaterials, shaders , name):
+def mix(SceneMaterials, shaders , name):
     for keys in shaders.keys():
         if keys not in SceneMaterials.keys():
-            SceneMaterials[keys]={}
+            SceneMaterials[keys] = {}
         if shaders[keys] != []:
-            SceneMaterials[keys][name]= shaders[keys]
+            SceneMaterials[keys][name] = shaders[keys]
             
 
 def getShadersInScene():
@@ -356,7 +356,7 @@ def getShadersInScene():
         shaders = create_shader_block(mat)
         mix(SceneMaterials , shaders , mat.name)   
     
-    for each,shdr in SceneMaterials['shader'].items():
+    for each, shdr in SceneMaterials['shader'].items():
         for eachline in shdr:
             print (eachline)     
  
