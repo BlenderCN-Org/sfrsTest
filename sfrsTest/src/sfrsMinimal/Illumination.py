@@ -315,10 +315,10 @@ def getCommandLineArgs(IllumSettings):
         threads = ''       
     argument['threads'] = threads
     
-    if scene.sunflow_performance.useCacheObjects:
-        argument['usecache'] = True
-    else:
-        argument['usecache'] = False
+#     if scene.sunflow_performance.useCacheObjects:
+#         argument['usecache'] = True
+#     else:
+#         argument['usecache'] = False
         
     if scene.sunflow_performance.useSmallMesh:
         argument['smallmesh'] = '-smallmesh'
@@ -335,10 +335,10 @@ def getCommandLineArgs(IllumSettings):
     else:
         argument['verbosity'] = ''
         
-    if scene.render.use_instances:
-        argument['useinstances'] = True
-    else:
-        argument['useinstances'] = False
+#     if scene.render.use_instances:
+#         argument['useinstances'] = True
+#     else:
+#         argument['useinstances'] = False
           
     IllumSettings['cmd'] = argument
     
