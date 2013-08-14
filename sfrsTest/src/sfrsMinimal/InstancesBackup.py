@@ -59,7 +59,6 @@ def InstanceExporter(scene , objname, turn_on_motion_blur, steps=0):
             ins['index'] = obj.index
             ins['pname'] = obj.object.name
             ins['trans'] = [pos]
-            # TODO: try deepcopy here check any performance change
             dupli_list[ ins['iname'] ] = ins
         obj_parent.dupli_list_clear()
         return dupli_list
@@ -99,7 +98,6 @@ def InstanceExporter(scene , objname, turn_on_motion_blur, steps=0):
         
         
 def sceneObjectsExporter(ObjectsRepository={}, Export_instances=False):  
-    # FIXME: we dont need this as a module
     # loop through the objects in the scene
     # create a dictionary
     # mark non exportable objects like light, camera, lightmat , *empty

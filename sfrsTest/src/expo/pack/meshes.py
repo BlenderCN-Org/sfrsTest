@@ -35,6 +35,8 @@ import time
 
 import bpy
 import mathutils
+# Framework libs
+from extensions_framework import util as efutil
 
 
 def name_compat(name):
@@ -52,8 +54,9 @@ def mesh_triangulate(me):
     bm.to_mesh(me)
     bm.free()
 
+    # FIXME: object visible ?? hide_render ???
     
-def write_file(objects_namelist, scene, Donot_Allow_Instancing=True , Only_Points_And_Faces=False):
+def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True , Points_And_Faces=False):
     """
     Basic Mesh Export function. This will directly write to a temp file. 
     And return a list of temp files.
@@ -70,7 +73,7 @@ def write_file(objects_namelist, scene, Donot_Allow_Instancing=True , Only_Point
     EXPORT_KEEP_VERT_ORDER = False
     EXPORT_GLOBAL_MATRIX = None
     
-
+    return_dict = {}
 
     if EXPORT_GLOBAL_MATRIX is None:
         EXPORT_GLOBAL_MATRIX = mathutils.Matrix()
@@ -112,13 +115,11 @@ def write_file(objects_namelist, scene, Donot_Allow_Instancing=True , Only_Point
         else:  # Allow_Instancing
             obs = [(ob_main, ob_main.matrix_world)]
 
-        Object_data_count = 0
-        Object_data_name = ob_main.name
-        
+
         for ob, ob_mat in obs:
             
+            Object_name = ob.name
             Object_data = {}
-            Object_data_count += 1
             
             #===================================================================
             # # Bezier Patches supported on sunflow implement here
@@ -186,7 +187,8 @@ def write_file(objects_namelist, scene, Donot_Allow_Instancing=True , Only_Point
             if not materials:
                 materials = [None]
                 material_names = [name_compat(None)]
-
+                
+            Object_data['material_names'] = material_names[:]
 
             # Sort by Material, then images
             # so we dont over context switch in the obj file.
@@ -294,14 +296,129 @@ def write_file(objects_namelist, scene, Donot_Allow_Instancing=True , Only_Point
             bpy.data.meshes.remove(me)
             
             # save to temp file
-            # save_object_data(Object_data_name , Object_data_count , Object_data , tmpdir_path="" , Only_Points_And_Faces)
-
+            filename = save_object_data(Object_name , Object_data , Only_Points_And_Faces)
+            if filename != '':
+                item = {}
+                item['materials'] = Object_data['material_names']
+                item['modifiers'] = []
+                item['objectfile'] = filename
+                return_dict['Object_name'] = item.copy()
+                del item
+                del Object_data
+                
         if ob_main.dupli_type != 'NONE':
             ob_main.dupli_list_clear()
 
  
     # copy all collected files.
     print("OBJ Export time: %.2f" % (time.time() - time1))
+    return return_dict
 
 
+def save_object_data(Object_name="", Object_data={}, Points_And_Faces=False):
+    
+    
+    if 'vertices' in Object_data.keys() and Object_data['vertices'] != [] :
+        number_of_vertices = len(Object_data['vertices'])
+    else:
+        print("Object has no vertices")
+        return ''
+    
+    if 'faces' in Object_data.keys() and Object_data['faces'] != [] :
+        number_of_faces = len(Object_data['faces'])
+    else:
+        print("Object has no faces")
+        return ''
+    
+    if  'normal' in Object_data.keys() and Object_data['normal'] != [] :
+        if len(Object_data['normal']) != number_of_faces :
+            print("Number of normal vector and faces don't match")
+            return ''
+        normal_type = 'facevarying'
+    else:
+        print("Object has no normal vector")
+        normal_type = 'none'
+    
+    if 'uv' in Object_data.keys()  and Object_data['uv'] != [] :
+        if len(Object_data['uv']) != number_of_faces :
+            print("Number of uv's and faces don't match")
+            return ''
+        uv_type = 'facevarying'
+    else:
+        print("Object has no uv's defined")
+        uv_type = 'none'
+    
+   
+    if 'matindex' in Object_data.keys()  and Object_data['matindex'] != [] :
+        if len(Object_data['matindex']) != number_of_faces :
+            print("Number of matindex's and faces don't match")
+            return ''
+        matindex_type = 'face_shaders'
+    else:
+        print("Object has no face shaders's defined")
+        matindex_type = ''
+        
+    
+#------------------------------------------------------------------------------ 
+    act_obj = []
+    indent = 0
+    space = "        "
+    indent += 1
+    
+    
+    act_obj.append("%s %s %s" % (space * indent , "points", number_of_vertices))
+    indent += 1
+    for item in Object_data['vertices']:
+        vertstring = '  '.join(item)
+        act_obj.append("%s %s %s" % (space * indent , "", vertstring))
+    indent -= 1
+    
+    act_obj.append("%s %s %s" % (space * indent , "triangles", number_of_faces))
+    indent += 1
+    for item in Object_data['faces']:
+        facestring = '  '.join(item)
+        act_obj.append("%s %s %s" % (space * indent , "", facestring))
+    indent -= 1
+    
+    if not Points_And_Faces:
+        act_obj.append("%s %s %s" % (space * indent , "normals", normal_type))
+        if normal_type == 'none':        
+            pass
+        else:        
+            indent += 1
+            for item in Object_data['normal']:
+                concat = ' '.join(item)
+                act_obj.append("%s %s %s" % (space * indent , "", concat))
+            indent -= 1    
+    
+    if not Points_And_Faces:
+        act_obj.append("%s %s %s" % (space * indent , "uvs", uv_type))
+        if uv_type == 'none':        
+            pass
+        else:        
+            indent += 1
+            for item in Object_data['uv']:
+                concat = ' '.join(item)
+                act_obj.append("%s %s %s" % (space * indent , "", concat))
+            indent -= 1
+    
+    if not Points_And_Faces:
+        act_obj.append("%s %s %s" % (space * indent , "", matindex_type))
+        if uv_type == 'none':        
+            pass
+        else:        
+            indent += 1
+            for item in Object_data['matindex']:
+                act_obj.append("%s %s %s" % (space * indent , "", item))
+            indent -= 1        
+        indent -= 1
 
+#------------------------------------------------------------------------------ 
+
+    tmpfile = efutil.temp_file(Object_name)
+    outfile = open(tmpfile, 'w')
+    for lines in act_obj :
+        outfile.write("\n%s" % lines)
+    outfile.close()
+    print("tmpfile>> %s" % tmpfile)
+    return tmpfile

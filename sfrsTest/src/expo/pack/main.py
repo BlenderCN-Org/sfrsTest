@@ -27,8 +27,13 @@
 import bpy
 import copy
 
+from .instances import InstanceExporter
+from .meshes import write_mesh_file
+from .shaders import getShadersInScene
+from .camera import getActiveCamera
+from .lamps import getLamps
+from .illumination import getIlluminationSettings
 
-from .Instances import InstanceExporter
 
 def dict_merge(*dictionaries):
     cp = {}
@@ -58,56 +63,12 @@ def getExporter():
     #===========================================================================
     
     # MATERIAL EXPORT
+    
     # CAMERA EXPORT
     # LIGHT EXPORT
     ObjectsExporter(ObjectsRepository, Export_instances)
     Assemble_File(ObjectsRepository)
     
-
-    
-
-
-
-
-
-
-
-def Assemble_File(ObjectsRepository):
-    key = 'Instances'
-    if key in ObjectsRepository.keys():
-        for each in ObjectsRepository[key].items():
-            # print (each)
-            pass
-   
-    
-    key = 'Instances'
-    act_inst = []
-    indent = 0
-    space = "        "
-    if key in ObjectsRepository.keys():
-        for keyptr , inst in ObjectsRepository[key].items():
-            act_inst.append("%s %s %s" % (space * indent , "instance", "{"))
-            indent += 1 
-            act_inst.append("%s %s %s" % (space * indent , "name", inst['iname']))
-            act_inst.append("%s %s %s" % (space * indent , "geometry", inst['pname']))
-            ln = len(inst['trans'])
-            if ln == 1:
-                act_inst.append("%s %s %s" % (space * indent , "transform  row", ' '.join(inst['trans'][0])))
-            else:
-                act_inst.append("%s %s %s" % (space * indent , "transform", ""))
-                act_inst.append("%s %s %s" % (space * indent , "steps", 5))
-                act_inst.append("%s %s %s" % (space * indent , "times", "0 1"))                
-                for exh in range(ln):
-                    act_inst.append("%s %s %s" % (space * indent , "row", ' '.join(inst['trans'][exh])))                
-            act_inst.append("%s %s %s" % (space * indent , "shader", "Material.shader"))
-            indent -= 1 
-            act_inst.append("%s %s %s" % (space * indent , "}", ""))
-            # act_inst.append("%s %s %s" % (space * indent , "modifier", " "))
-    instfile = open("E:\Graphics\Works\\testbuildsfor253\DupliesTest\Objects.ins.sc" , 'w')
-    for x in act_inst:
-        instfile.write("\n%s" % x)
-    instfile.close()
-
 
 
        
@@ -159,12 +120,12 @@ def ObjectsExporter(ObjectsRepository={}, Export_instances=False):
             
         # filter objects - avoid instances ;         
         noninst = [obj for obj in obj_lst if obj not in ObjectsRepository['Instantiated'].keys() ]
-        del obj_lst
         obj_lst = noninst 
         # print(obj_lst)   
     
-    for objname in obj_lst:
-        # ActualsExporter()
-        print ("Exported>> %s" % objname)
+    ObjectsRepository['ExportedObjects'] = write_mesh_file(obj_lst, scene, not Export_instances, True)
+    write_mesh_file(ObjectsRepository['MeshLightObjects'].keys(), scene, not Export_instances, False)
+    
+
          
 

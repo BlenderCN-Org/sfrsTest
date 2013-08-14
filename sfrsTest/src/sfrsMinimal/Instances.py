@@ -45,7 +45,6 @@ def InstanceExporter(scene , objname, turn_on_motion_blur, steps=0):
             ins['index'] = obj.index
             ins['pname'] = obj.object.name
             ins['trans'] = [pos]
-            # TODO: try deepcopy here check any performance change
             dupli_list[ ins['iname'] ] = ins
         obj_parent.dupli_list_clear()
         return dupli_list
