@@ -89,23 +89,22 @@ def getExporter():
     
     # Assemble_File(ObjectsRepository)
 
-#===============================================================================
-#     for key in ObjectsRepository.keys():
-#         print("KEYS> %s" % key)
-# 
-#     key = 'Shader'
-#     if key in ObjectsRepository.keys():
-#         for each in ObjectsRepository[key].items():
-#             print("From Shader >>")
-#             print (each)
-#===============================================================================  
+    #===========================================================================
+    # for key in ObjectsRepository.keys():
+    #     print("KEYS> %s" % key)
+    #===========================================================================
+ 
+    key = 'Instances'
+    if key in ObjectsRepository.keys():
+        for each in ObjectsRepository[key].items():
+            print("From Shader >>")
+            print (each)
+ 
     
-def ObjectsExporter(scene , ObjectsRepository={}, Export_instances=False):  
-    
+def ObjectsExporter(scene , ObjectsRepository={}, Export_instances=False): 
     
     # filter objects - avoid camera , lamp
     obj_lst = [ obj.name  for obj in scene.objects if obj.type not in ['CAMERA', 'LAMP'] ]
-
     
     # filter objects - avoid meshlights ; these are not objects but lights    
     # nonlights = [obj for obj in obj_lst if obj not in ObjectsRepository['MeshLightObjects'].keys() ]

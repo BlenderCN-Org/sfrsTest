@@ -300,8 +300,8 @@ def create_shader_block(mat):
         indent -= 1
         type_modifier = True
         
-    for eachline in act_mod:
-        print(eachline)
+#     for eachline in act_mod:
+#         print(eachline)
         
     report = {}
         

@@ -419,5 +419,5 @@ def save_object_data(Object_name="", Object_data={}):
     for lines in act_obj :
         outfile.write("\n%s" % lines)
     outfile.close()
-    print("tmpfile>> %s" % tmpfile)
+    # print("tmpfile>> %s" % tmpfile)
     return tmpfile
