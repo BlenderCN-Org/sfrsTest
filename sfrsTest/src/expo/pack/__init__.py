@@ -1,1 +1,1 @@
-print('''every thing in main.py will be moved to here.''')
+print('''<<< every thing in main.py should be moved to here. >>>''')

@@ -196,22 +196,22 @@ def file_exists(filepath):
         return False
 
 
-def world_ibl_lighting(context):
+def world_ibl_lighting(scene):
     act_lit = []
     indent = 0
     space = "        "
     
-    if context.scene.sunflow_world.worldLighting != 'ibl' :  
+    if scene.sunflow_world.worldLighting != 'ibl' :  
         return { 'world' : act_lit }   
      
-    sfworld = context.scene.sunflow_world
+    sfworld = scene.sunflow_world
     if sfworld.texturename is None:        
         return { 'world' : act_lit }
     
-    if sfworld.texturename not in context.scene.world.texture_slots.keys():
+    if sfworld.texturename not in scene.world.texture_slots.keys():
         return { 'world' : act_lit }
     
-    world_tex = context.scene.world.texture_slots[sfworld.texturename]
+    world_tex = scene.world.texture_slots[sfworld.texturename]
     if world_tex is None:        
         return { 'world' : act_lit }
     
@@ -243,8 +243,8 @@ def world_ibl_lighting(context):
     
     return { 'world' : act_lit }
 
-def getLamps():
-    scene_lamps = [ lm for lm in bpy.context.scene.objects if lm.type == 'LAMP' ]
+def getLamps(scene):
+    scene_lamps = [ lm for lm in scene.objects if lm.type == 'LAMP' ]
     SceneLamps = {}
     for lamp in scene_lamps:
         if not hasattr(lamp.data , 'sunflow_lamp'):
@@ -253,8 +253,10 @@ def getLamps():
         lamps = create_lamp_block(lamp)
         mix(SceneLamps , lamps , lamp.name)   
     
-    world = world_ibl_lighting(bpy.context)
+    world = world_ibl_lighting(scene)
     mix(SceneLamps , world , 'worldlight') 
+    
+    return SceneLamps
     
     if 'world' in SceneLamps.keys():
         for each, shdr in SceneLamps['world'].items():

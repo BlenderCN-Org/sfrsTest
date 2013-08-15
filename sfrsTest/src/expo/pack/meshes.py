@@ -56,7 +56,7 @@ def mesh_triangulate(me):
 
     # FIXME: object visible ?? hide_render ???
     
-def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True , Points_And_Faces=False):
+def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True):
     """
     Basic Mesh Export function. This will directly write to a temp file. 
     And return a list of temp files.
@@ -296,13 +296,13 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True , Point
             bpy.data.meshes.remove(me)
             
             # save to temp file
-            filename = save_object_data(Object_name , Object_data , Only_Points_And_Faces)
+            filename = save_object_data(Object_name , Object_data)
             if filename != '':
                 item = {}
                 item['materials'] = Object_data['material_names']
                 item['modifiers'] = []
                 item['objectfile'] = filename
-                return_dict['Object_name'] = item.copy()
+                return_dict[Object_name] = item.copy()
                 del item
                 del Object_data
                 
@@ -315,7 +315,7 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True , Point
     return return_dict
 
 
-def save_object_data(Object_name="", Object_data={}, Points_And_Faces=False):
+def save_object_data(Object_name="", Object_data={}):
     
     
     if 'vertices' in Object_data.keys() and Object_data['vertices'] != [] :
@@ -348,7 +348,6 @@ def save_object_data(Object_name="", Object_data={}, Points_And_Faces=False):
         print("Object has no uv's defined")
         uv_type = 'none'
     
-   
     if 'matindex' in Object_data.keys()  and Object_data['matindex'] != [] :
         if len(Object_data['matindex']) != number_of_faces :
             print("Number of matindex's and faces don't match")
@@ -380,42 +379,42 @@ def save_object_data(Object_name="", Object_data={}, Points_And_Faces=False):
         act_obj.append("%s %s %s" % (space * indent , "", facestring))
     indent -= 1
     
-    if not Points_And_Faces:
-        act_obj.append("%s %s %s" % (space * indent , "normals", normal_type))
-        if normal_type == 'none':        
-            pass
-        else:        
-            indent += 1
-            for item in Object_data['normal']:
-                concat = ' '.join(item)
-                act_obj.append("%s %s %s" % (space * indent , "", concat))
-            indent -= 1    
+
+    act_obj.append("%s %s %s" % (space * indent , "normals", normal_type))
+    if normal_type == 'none':        
+        pass
+    else:        
+        indent += 1
+        for item in Object_data['normal']:
+            concat = ' '.join(item)
+            act_obj.append("%s %s %s" % (space * indent , "", concat))
+        indent -= 1    
     
-    if not Points_And_Faces:
-        act_obj.append("%s %s %s" % (space * indent , "uvs", uv_type))
-        if uv_type == 'none':        
-            pass
-        else:        
-            indent += 1
-            for item in Object_data['uv']:
-                concat = ' '.join(item)
-                act_obj.append("%s %s %s" % (space * indent , "", concat))
-            indent -= 1
-    
-    if not Points_And_Faces:
-        act_obj.append("%s %s %s" % (space * indent , "", matindex_type))
-        if uv_type == 'none':        
-            pass
-        else:        
-            indent += 1
-            for item in Object_data['matindex']:
-                act_obj.append("%s %s %s" % (space * indent , "", item))
-            indent -= 1        
+
+    act_obj.append("%s %s %s" % (space * indent , "uvs", uv_type))
+    if uv_type == 'none':        
+        pass
+    else:        
+        indent += 1
+        for item in Object_data['uv']:
+            concat = ' '.join(item)
+            act_obj.append("%s %s %s" % (space * indent , "", concat))
         indent -= 1
+
+
+    act_obj.append("%s %s %s" % (space * indent , "", matindex_type))
+    if matindex_type == '':        
+        pass
+    else:        
+        indent += 1
+        for item in Object_data['matindex']:
+            act_obj.append("%s %s %s" % (space * indent , "", item))
+        indent -= 1        
+    indent -= 1
 
 #------------------------------------------------------------------------------ 
 
-    tmpfile = efutil.temp_file(Object_name)
+    tmpfile = efutil.temp_file(Object_name + ".sc")
     outfile = open(tmpfile, 'w')
     for lines in act_obj :
         outfile.write("\n%s" % lines)

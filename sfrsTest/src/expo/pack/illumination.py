@@ -75,7 +75,7 @@ def scene_gi():
     sunflow_integrator = scene.sunflow_integrator
     gi = sunflow_integrator.globalIllumination
     if gi == 'none':
-        return { 'world' : act_Illum }
+        return { 'gi' : act_Illum }
     
     act_Illum.append("%s %s %s" % (space * indent , "gi    ", "{"))
     indent += 1
@@ -344,7 +344,7 @@ def getCommandLineArgs(IllumSettings):
     
 
 
-def getIlluminationSettings(): 
+def getIlluminationSettings(scene): 
     IllumSettings = {}
     mix(IllumSettings , scene_gi() , 'illumination')    
     mix(IllumSettings , scene_tracedepths() , 'trace')    
@@ -355,10 +355,10 @@ def getIlluminationSettings():
     mix(IllumSettings , scene_override() , 'override')
     getCommandLineArgs(IllumSettings)
         
-    
-    if 'cmd' in IllumSettings.keys():
-        for each, shdr in IllumSettings['cmd'].items():
-            print(" %s   %s " % (each, shdr))
+    return IllumSettings
+#     if 'cmd' in IllumSettings.keys():
+#         for each, shdr in IllumSettings['cmd'].items():
+#             print(" %s   %s " % (each, shdr))
 #             for eachline in shdr:
 #                 print (eachline)
 

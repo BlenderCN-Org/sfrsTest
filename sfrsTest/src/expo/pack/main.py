@@ -27,13 +27,12 @@
 import bpy
 import copy
 
-from .instances import InstanceExporter
-from .meshes import write_mesh_file
+from .camera import getSceneCamera
 from .shaders import getShadersInScene
-from .camera import getActiveCamera
 from .lamps import getLamps
 from .illumination import getIlluminationSettings
-
+from .instances import InstanceExporter
+from .meshes import write_mesh_file
 
 def dict_merge(*dictionaries):
     cp = {}
@@ -48,6 +47,12 @@ def dmix(MasterDict, InputDict , TargetName):
         MasterDict[TargetName][keys] = InputDict[keys]
 
 def getExporter():
+    
+    #===========================================================================
+    # obj = objname , [material_list] , [modifiers_list] , object_def_file_path
+    # inst= instname , actualobject , transteps[]
+    #===========================================================================
+    
     ObjectsRepository = {
                 'MotionBlurObjects':{},
                 'MeshLightObjects':{},
@@ -55,34 +60,56 @@ def getExporter():
                 'Instances':{},
                 'Instantiated':{},
                          }
-    Export_instances = True
     
-    #===========================================================================
-    # obj = objname , [material_list] , [modifiers_list] , object_def_file_path
-    # inst= instname , actualobject , transteps[]
-    #===========================================================================
+    scene = bpy.context.scene   
+    Export_instances = scene.render.use_instances
     
-    # MATERIAL EXPORT
+    # CAMERA EXPORT    
+    xportdict = getSceneCamera(scene)
+    ObjectsRepository = dict_merge(ObjectsRepository , xportdict)
+    del xportdict 
     
-    # CAMERA EXPORT
-    # LIGHT EXPORT
-    ObjectsExporter(ObjectsRepository, Export_instances)
-    Assemble_File(ObjectsRepository)
+    # MATERIAL EXPORT 
+    xportdict = getShadersInScene(scene)
+    ObjectsRepository = dict_merge(ObjectsRepository , xportdict)
+    del xportdict 
+        
+    # LIGHT EXPORT 
+    xportdict = getLamps(scene)
+    ObjectsRepository = dict_merge(ObjectsRepository , xportdict)
+    del xportdict
     
+    # RENDER SETTINGS 
+    xportdict = getIlluminationSettings(scene)
+    ObjectsRepository = dict_merge(ObjectsRepository , xportdict)
+    del xportdict
+    
+    # MESH EXPORT 
+    ObjectsExporter(scene , ObjectsRepository, Export_instances)
+    
+    # Assemble_File(ObjectsRepository)
 
-
-       
-def ObjectsExporter(ObjectsRepository={}, Export_instances=False):  
+#===============================================================================
+#     for key in ObjectsRepository.keys():
+#         print("KEYS> %s" % key)
+# 
+#     key = 'Shader'
+#     if key in ObjectsRepository.keys():
+#         for each in ObjectsRepository[key].items():
+#             print("From Shader >>")
+#             print (each)
+#===============================================================================  
     
-    scene = bpy.context.scene
+def ObjectsExporter(scene , ObjectsRepository={}, Export_instances=False):  
+    
     
     # filter objects - avoid camera , lamp
     obj_lst = [ obj.name  for obj in scene.objects if obj.type not in ['CAMERA', 'LAMP'] ]
 
     
     # filter objects - avoid meshlights ; these are not objects but lights    
-    nonlights = [obj for obj in obj_lst if obj not in ObjectsRepository['MeshLightObjects'].keys() ]
-    obj_lst = nonlights
+    # nonlights = [obj for obj in obj_lst if obj not in ObjectsRepository['MeshLightObjects'].keys() ]
+    # obj_lst = nonlights
     
     if Export_instances:
         proxy_list = {}
@@ -123,9 +150,5 @@ def ObjectsExporter(ObjectsRepository={}, Export_instances=False):
         obj_lst = noninst 
         # print(obj_lst)   
     
-    ObjectsRepository['ExportedObjects'] = write_mesh_file(obj_lst, scene, not Export_instances, True)
-    write_mesh_file(ObjectsRepository['MeshLightObjects'].keys(), scene, not Export_instances, False)
+    ObjectsRepository['ExportedObjects'] = write_mesh_file(obj_lst, scene, not Export_instances)
     
-
-         
-

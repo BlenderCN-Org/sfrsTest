@@ -33,23 +33,6 @@ from extensions_framework import util as efutil
 
 
 
-#===============================================================================
-# #===============================================================================
-# # test_working
-# #===============================================================================
-# def test_working():
-#     print("This will give the collection of materials in the scene.")
-#     print( bpy.data.materials )
-#     print("This will give material on a particular object 'CUBE'")
-#     print(bpy.context.scene.objects['Cube'].data.materials[:])
-#     print("This will give all the material slots on that object")
-#     print(bpy.context.scene.objects['Cube'].material_slots[:])
-#     print("This wil give the material assigned to a particular slot")
-#     print(bpy.context.scene.objects['Cube'].material_slots[0].material)
-#===============================================================================
-    
-
-
 def tr_color_str(_color):
     colors = [ "%+0.4f" % channel for channel in _color ]
     return '  '.join(colors)
@@ -94,7 +77,7 @@ def texture_found(mat, mat_type):
     return 0
 
 def texture_path(mat, mat_slot):
-    return mat.texture_slots[mat_slot - 1].texture.image.filepath
+    return make_path_real(mat.texture_slots[mat_slot - 1].texture.image.filepath)
 
 
 def create_shader_block(mat):
@@ -302,7 +285,7 @@ def create_shader_block(mat):
         indent += 1
         act_mod.append("%s %s %s" % (space * indent , "name ", '"' + name + '"'))
         act_mod.append("%s %s %s" % (space * indent , "type", "bump"))
-        act_mod.append("%s %s %s" % (space * indent , "texture ", texture_path(mat , texture_found(mat , 2))))
+        act_mod.append("%s %s %s" % (space * indent , "texture ", '"' + texture_path(mat , texture_found(mat , 2)) + '"'))
         act_mod.append("%s %s %s" % (space * indent , "scale", "%+0.4f" % (mat.texture_slots[texture_found(mat , 2) - 1].normal_factor)))
         act_mod.append("%s %s %s" % (space * indent , "}", ""))
         indent -= 1
@@ -312,7 +295,7 @@ def create_shader_block(mat):
         indent += 1
         act_mod.append("%s %s %s" % (space * indent , "name ", '"' + name + '"'))
         act_mod.append("%s %s %s" % (space * indent , "type", "normalmap"))
-        act_mod.append("%s %s %s" % (space * indent , "texture ", texture_path(mat , texture_found(mat , 3))))
+        act_mod.append("%s %s %s" % (space * indent , "texture ", '"' + texture_path(mat , texture_found(mat , 3)) + '"'))
         act_mod.append("%s %s %s" % (space * indent , "scale", "%+0.4f" % (mat.texture_slots[texture_found(mat , 3) - 1].displacement_factor)))
         act_mod.append("%s %s %s" % (space * indent , "}", ""))
         indent -= 1
@@ -324,19 +307,19 @@ def create_shader_block(mat):
     report = {}
         
     if type_shader:
-        report['shader'] = act_mat[:]
+        report['Shader'] = act_mat[:]
     else:
-        report['shader'] = []    
+        report['Shader'] = []    
     
     if type_meshlight:
-        report['light'] = act_mat[:]
+        report['Shaderlight'] = act_mat[:]
     else:
-        report['light'] = []
+        report['Shaderlight'] = []
     
     if type_modifier:
-        report['modifier'] = act_mod[:]
+        report['Shadermodifier'] = act_mod[:]
     else:
-        report['modifier'] = []
+        report['Shadermodifier'] = []
     
     del act_mat
     
@@ -350,10 +333,9 @@ def mix(SceneMaterials, shaders , name):
             SceneMaterials[keys][name] = shaders[keys]
             
 
-def getShadersInScene():
+def getShadersInScene(scene):
     scene_mat = bpy.data.materials
     SceneMaterials = {}
-    SceneMaterials['exportable'] = set()
     for mat in scene_mat:
         if mat.users <= 0 :
             print("Material has no owner")
@@ -363,10 +345,10 @@ def getShadersInScene():
             continue
         shaders = create_shader_block(mat)
         mix(SceneMaterials , shaders , mat.name)   
-    
-    for each, shdr in SceneMaterials['shader'].items():
-        for eachline in shdr:
-            print (eachline)     
+    return SceneMaterials
+#     for each, shdr in SceneMaterials['shader'].items():
+#         for eachline in shdr:
+#             print (eachline)     
  
 def working():
     getShadersInScene()

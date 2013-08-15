@@ -27,11 +27,7 @@
 
 
 def Assemble_File(ObjectsRepository):
-    key = 'Instances'
-    if key in ObjectsRepository.keys():
-        for each in ObjectsRepository[key].items():
-            # print (each)
-            pass
+
    
     
     key = 'Instances'
