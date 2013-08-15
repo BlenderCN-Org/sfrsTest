@@ -258,10 +258,10 @@ def getLamps(scene):
     
     return SceneLamps
     
-    if 'world' in SceneLamps.keys():
-        for each, shdr in SceneLamps['world'].items():
-            for eachline in shdr:
-                print (eachline)     
+#     if 'world' in SceneLamps.keys():
+#         for each, shdr in SceneLamps['world'].items():
+#             for eachline in shdr:
+#                 print (eachline)     
 
 
 

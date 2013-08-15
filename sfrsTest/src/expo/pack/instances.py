@@ -25,8 +25,6 @@
 # --------------------------------------------------------------------------
 
 import math
-import mathutils
-
 
 def getPos(obj, as_matrix=True):
     obj_mat = obj.matrix.copy()

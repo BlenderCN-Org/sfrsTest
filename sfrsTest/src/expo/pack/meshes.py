@@ -30,8 +30,8 @@
 #                                    Campbell Barton
 # --------------------------------------------------------------------------
 
-import os
-import time
+# import os
+# import time
 
 import bpy
 import mathutils
@@ -68,7 +68,7 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True):
     EXPORT_SMOOTH_GROUPS = True
     EXPORT_NORMALS = True
     EXPORT_UV = True
-    EXPORT_BEZIER_PATCHES = True
+    # EXPORT_BEZIER_PATCHES = True
     EXPORT_APPLY_MODIFIERS = True
     EXPORT_KEEP_VERT_ORDER = False
     EXPORT_GLOBAL_MATRIX = None
@@ -84,7 +84,7 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True):
     def veckey2d(v):
         return round(v[0], 6), round(v[1], 6)
 
-    time1 = time.time()
+    # time1 = time.time()
 
 
     # Get all meshes
@@ -311,7 +311,7 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True):
 
  
     # copy all collected files.
-    print("OBJ Export time: %.2f" % (time.time() - time1))
+    # print("OBJ Export time: %.2f" % (time.time() - time1))
     return return_dict
 
 

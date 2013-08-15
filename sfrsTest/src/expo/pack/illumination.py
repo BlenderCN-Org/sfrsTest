@@ -25,8 +25,6 @@
 # --------------------------------------------------------------------------
 
 import bpy
-import math
-import mathutils
 
 def tr_color_str(_color):
     colors = [ "%+0.4f" % channel for channel in _color ]

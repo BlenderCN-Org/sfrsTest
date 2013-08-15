@@ -27,7 +27,6 @@
 import os
 import bpy
 import math
-import mathutils
 # Framework libs
 from extensions_framework import util as efutil
 

@@ -26,7 +26,6 @@
 
 import bpy
 import math
-import mathutils
 
 
 
@@ -113,7 +112,7 @@ def getActiveCamera(scene=None):
         
         fdist = 0.0
         if cam.cameraType == "thinlens" and cam.dofEnabledScene and camera.data.dof_object is not None:
-            fdist , direct = calculateDOF(camera, camera.data.dof_object , scene)
+            fdist , dummy_direct = calculateDOF(camera, camera.data.dof_object , scene)
         lensr = "%+0.4f" % cam.aperture
         sides = cam.apertureBlades
         rotation = "%+0.4f" % cam.bladeRotation
