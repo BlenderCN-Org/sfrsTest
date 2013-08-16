@@ -30,23 +30,19 @@
 #                                    Campbell Barton
 # --------------------------------------------------------------------------
 
-# import os
-# import time
+import os
+import time
 
 import bpy
 import math
 import mathutils
-# Framework libs
-from extensions_framework import util as efutil
-
-
 
 
 
 #===============================================================================
 # getMotionBlurMatrices
 #===============================================================================
-def getMotionBlurMatrices(scene=None, object_name=None, steps=0):
+def getMotionBlurMatrices(scene=None, object_name=None, steps=0, as_matrix=True):
     current_frame , current_subframe = (scene.frame_current, scene.frame_subframe)
     mb_start = current_frame - math.ceil(steps / 2) + 1
     frame_steps = [ mb_start + n for n in range(0, steps) ]
@@ -83,9 +79,6 @@ def MatixToList(obj_mat):
     
 
 
-
-
-
 def name_compat(name):
     if name is None:
         return 'None'
@@ -101,17 +94,124 @@ def mesh_triangulate(me):
     bm.to_mesh(me)
     bm.free()
 
-    # FIXME: object visible ?? hide_render ???
+
+def save_object_data(Object_data_name="", Object_data_count=0, Object_data={}, tmpdir_path=""):
     
+    print(tmpdir_path)
+    #===========================================================================
+    # 
+    print("""
+            object {
+                shader "Material"
+                type generic-mesh
+                name %s""" % Object_data_name)
 
-def motion_blur_object(scene , obj_name , duplis , steps):
-    pass
+    #===========================================================================
+    if 'vertices' in Object_data.keys() and Object_data['vertices'] != [] :
+        number_of_vertices = len(Object_data['vertices'])
+    else:
+        print("Object has no vertices")
+        return
+    
+    if 'faces' in Object_data.keys() and Object_data['faces'] != [] :
+        number_of_faces = len(Object_data['faces'])
+    else:
+        print("Object has no faces")
+        return
+    
+    if  'normal' in Object_data.keys() and Object_data['normal'] != [] :
+        if len(Object_data['normal']) != number_of_faces :
+            print("Number of normal vector and faces don't match")
+            return
+        normal_type = 'facevarying'
+    else:
+        print("Object has no normal vector")
+        normal_type = 'none'
+    
+    if 'uv' in Object_data.keys()  and Object_data['uv'] != [] :
+        if len(Object_data['uv']) != number_of_faces :
+            print("Number of uv's and faces don't match")
+            return
+        uv_type = 'facevarying'
+    else:
+        # print("Object has no uv's defined")
+        uv_type = 'none'
+    
+   
+    if 'matindex' in Object_data.keys()  and Object_data['matindex'] != [] :
+        if len(Object_data['matindex']) != number_of_faces :
+            print("Number of matindex's and faces don't match")
+            return
+        matindex_type = 'face_shaders'
+    else:
+        # print("Object has no face shaders's defined")
+        matindex_type = ''
+        
+        
+    TAB = '    '
+    indent = 0
+    
+    indent += 1
+    print("%s %s %d" % (TAB * indent , 'points' , number_of_vertices))
+    
+    indent += 1
+    for item in Object_data['vertices']:
+        print("%s %s %s %s" % (TAB * indent , item[0] , item[1] , item[2]))
+    indent -= 2
+    
+    
+    indent += 1
+    print("%s %s %d" % (TAB * indent , 'triangles' , number_of_faces))
+    
+    indent += 1
+    for item in Object_data['faces']:
+        print("%s  %s  %s  %s" % (TAB * indent , item[0] , item[1] , item[2]))
+    indent -= 2
+    
+    indent += 1
+    print("%s %s %s" % (TAB * indent , 'normals' , normal_type))
+    if normal_type == 'none':        
+        indent -= 1
+    else:        
+        indent += 1
+        for item in Object_data['normal']:
+            concat = ' '.join(item)
+            print("%s %s" % (TAB * indent , concat))
+        indent -= 2
 
-
-def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True, mblurlist=[] , steps=0):
+    indent += 1
+    print("%s %s %s" % (TAB * indent , 'uvs' , uv_type))
+    if uv_type == 'none':        
+        indent -= 1
+    else:        
+        indent += 1
+        for item in Object_data['uv']:
+            concat = ' '.join(item)
+            print("%s %s" % (TAB * indent , concat))
+        indent -= 2
+    
+    
+    indent += 1
+    print("%s %s %s" % (TAB * indent , '' , matindex_type))
+    if matindex_type == '':                
+        indent -= 1
+    else:         
+        indent += 1
+        for item in Object_data['matindex']:
+            print("%s %s" % (TAB * indent , item))
+        indent -= 2
+    
+    print("}")
+    
+    
+    
+    
+    
+    
+    
+def write_file(filepath, objects, scene,):
     """
-    Basic Mesh Export function. This will directly write to a temp file. 
-    And return a list of temp files.
+    Basic write function. The context and options must be already set
     """
     
     # Flags
@@ -120,12 +220,12 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True, mblurl
     EXPORT_SMOOTH_GROUPS = True
     EXPORT_NORMALS = True
     EXPORT_UV = True
-    # EXPORT_BEZIER_PATCHES = True
+    EXPORT_BEZIER_PATCHES = True
     EXPORT_APPLY_MODIFIERS = True
     EXPORT_KEEP_VERT_ORDER = False
     EXPORT_GLOBAL_MATRIX = None
     
-    return_dict = {}
+
 
     if EXPORT_GLOBAL_MATRIX is None:
         EXPORT_GLOBAL_MATRIX = mathutils.Matrix()
@@ -136,59 +236,45 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True, mblurl
     def veckey2d(v):
         return round(v[0], 6), round(v[1], 6)
 
-    # time1 = time.time()
+    #===========================================================================
+    # def veckey2d(v):
+    #    x,y = v
+    #    return "%+0.4f  %+0.4f " %(x,y)
+    #===========================================================================
+
+    time1 = time.time()
 
 
     # Get all meshes
-    for ob_main_name in objects_namelist:
+    for ob_main in objects:
+
+        # ignore dupli children
+        if ob_main.parent and ob_main.parent.dupli_type in {'VERTS', 'FACES'}:
+            # XXX
+            print(ob_main.name, 'is a dupli child - ignoring')
+            continue
 
         obs = []
-        ob_main = scene.objects[ob_main_name]
-        is_dupli = False
-        transform_matrix = []
-        
-        
-        if Donot_Allow_Instancing:
-            # ignore dupli children
-            if ob_main.parent and ob_main.parent.dupli_type in {'VERTS', 'FACES'}:
-                # XXX
-                print(ob_main.name, 'is a dupli child - ignoring')
-                continue
+        if ob_main.dupli_type != 'NONE':
+            # XXX
+            print('creating dupli_list on', ob_main.name)
+            ob_main.dupli_list_create(scene)
 
-            if ob_main.dupli_type != 'NONE':
-                is_dupli = True
-                # TODO: need testing on motion blur (parent)
-                if ob_main_name in mblurlist: 
-                    print("No inst , duplis %s" % ob_main_name)
-                    transform_matrix = motion_blur_object(scene, ob_main_name, is_dupli , steps)
-                
-                # XXX
-                print('creating dupli_list on', ob_main.name)
-                ob_main.dupli_list_create(scene)
-    
-                obs = [(dob.object, dob.matrix) for dob in ob_main.dupli_list]
-    
-                # XXX debug print
-                print(ob_main.name, 'has', len(obs), 'dupli children')
-            else:
-                # TODO: need testing on motion blur (normal object / non children non parent)
-                if ob_main_name in mblurlist:
-                    print("No inst , normal %s" % ob_main_name)
-                    transform_matrix = motion_blur_object(scene, ob_main_name, is_dupli, steps)
-                obs = [(ob_main, ob_main.matrix_world)]
-        else:  # Allow_Instancing
-            # TODO: need testing on motion blur (normal object / non children )
-            if ob_main_name in mblurlist:
-                print("Inst , normal %s" % ob_main_name)
-                transform_matrix = motion_blur_object(scene, ob_main_name, is_dupli, steps)
+            obs = [(dob.object, dob.matrix) for dob in ob_main.dupli_list]
+
+            # XXX debug print
+            print(ob_main.name, 'has', len(obs), 'dupli children')
+        else:
             obs = [(ob_main, ob_main.matrix_world)]
 
-        item_index = 0
+        Object_data_count = 0
+        Object_data_name = ob_main.name
+        # print("Object is %s" % Object_data_name)
+        
         for ob, ob_mat in obs:
-            item_index += 1
-            Object_name = ob.name
-            Object_data = {}
             
+            Object_data = {}
+            Object_data_count += 1
             
             #===================================================================
             # # Bezier Patches supported on sunflow implement here
@@ -256,8 +342,7 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True, mblurl
             if not materials:
                 materials = [None]
                 material_names = [name_compat(None)]
-                
-            Object_data['material_names'] = material_names[:]
+
 
             # Sort by Material, then images
             # so we dont over context switch in the obj file.
@@ -361,145 +446,143 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True, mblurl
             if not faceuv:
                 f_image = None
                 
-                
-                
-                
             # clean up
             bpy.data.meshes.remove(me)
             
             # save to temp file
-            item_name = "%s.item.%03d" % (Object_name, item_index)
-            if is_dupli:
-                trans_mat = []
-                for matrix_each in range(steps):
-                    trans_mat.append(transform_matrix[matrix_each][item_index - 1])
-            else:
-                trans_mat = transform_matrix[:]
-            filename = save_object_data(item_name , Object_data)
-            if filename != '':
-                item = {}
-                item['materials'] = Object_data['material_names']
-                item['modifiers'] = []
-                item['objectfile'] = filename
-                item['parent'] = Object_name            
-                item['is_dupli'] = is_dupli    
-                item['trans_mat'] = trans_mat
-                return_dict[item_name] = item.copy()
-                del item
-                del Object_data
-                
+            save_object_data(Object_data_name , Object_data_count , Object_data , tmpdir_path="")
+
         if ob_main.dupli_type != 'NONE':
             ob_main.dupli_list_clear()
+            
+        matrices = getMotionBlurMatrices(scene, Object_data_name, steps=5, as_matrix=True)
+        for each in matrices:
+            x = ' '.join(each)
+            print("row %s" % x)
 
  
     # copy all collected files.
-    # print("OBJ Export time: %.2f" % (time.time() - time1))
-    return return_dict
+    print("OBJ Export time: %.2f" % (time.time() - time1))
 
-
-def save_object_data(Object_name="", Object_data={}):
-    
-    
-    if 'vertices' in Object_data.keys() and Object_data['vertices'] != [] :
-        number_of_vertices = len(Object_data['vertices'])
-    else:
-        print("Object has no vertices")
-        return ''
-    
-    if 'faces' in Object_data.keys() and Object_data['faces'] != [] :
-        number_of_faces = len(Object_data['faces'])
-    else:
-        print("Object has no faces")
-        return ''
-    
-    if  'normal' in Object_data.keys() and Object_data['normal'] != [] :
-        if len(Object_data['normal']) != number_of_faces :
-            print("Number of normal vector and faces don't match")
-            return ''
-        normal_type = 'facevarying'
-    else:
-        print("Object has no normal vector")
-        normal_type = 'none'
-    
-    if 'uv' in Object_data.keys()  and Object_data['uv'] != [] :
-        if len(Object_data['uv']) != number_of_faces :
-            print("Number of uv's and faces don't match")
-            return ''
-        uv_type = 'facevarying'
-    else:
-        print("Object has no uv's defined")
-        uv_type = 'none'
-    
-    if 'matindex' in Object_data.keys()  and Object_data['matindex'] != [] :
-        if len(Object_data['matindex']) != number_of_faces :
-            print("Number of matindex's and faces don't match")
-            return ''
-        matindex_type = 'face_shaders'
-    else:
-        print("Object has no face shaders's defined")
-        matindex_type = ''
-        
-    
-#------------------------------------------------------------------------------ 
-    act_obj = []
-    indent = 0
-    space = "        "
-    indent += 1
-    
-    
-    act_obj.append("%s %s %s" % (space * indent , "points", number_of_vertices))
-    indent += 1
-    for item in Object_data['vertices']:
-        vertstring = '  '.join(item)
-        act_obj.append("%s %s %s" % (space * indent , "", vertstring))
-    indent -= 1
-    
-    act_obj.append("%s %s %s" % (space * indent , "triangles", number_of_faces))
-    indent += 1
-    for item in Object_data['faces']:
-        facestring = '  '.join(item)
-        act_obj.append("%s %s %s" % (space * indent , "", facestring))
-    indent -= 1
-    
-
-    act_obj.append("%s %s %s" % (space * indent , "normals", normal_type))
-    if normal_type == 'none':        
-        pass
-    else:        
-        indent += 1
-        for item in Object_data['normal']:
-            concat = ' '.join(item)
-            act_obj.append("%s %s %s" % (space * indent , "", concat))
-        indent -= 1    
-    
-
-    act_obj.append("%s %s %s" % (space * indent , "uvs", uv_type))
-    if uv_type == 'none':        
-        pass
-    else:        
-        indent += 1
-        for item in Object_data['uv']:
-            concat = ' '.join(item)
-            act_obj.append("%s %s %s" % (space * indent , "", concat))
-        indent -= 1
-
-
-    act_obj.append("%s %s %s" % (space * indent , "", matindex_type))
-    if matindex_type == '':        
-        pass
-    else:        
-        indent += 1
-        for item in Object_data['matindex']:
-            act_obj.append("%s %s %s" % (space * indent , "", item))
-        indent -= 1        
-    indent -= 1
 
 #------------------------------------------------------------------------------ 
+#===============================================================================
+# 
+#    print('OBJ Export path: %r' % filepath)
+#    
+#    file_out = open(filepath, "w", encoding="utf8", newline="\n")
+#    fw = file_out.write
+# 
+#    # Write Header
+#    fw('/* Blender v%s OBJ File: %r\n' % (bpy.app.version_string, os.path.basename(bpy.data.filepath)))
+#    fw('   http://sunflow.sourceforge.net/ */\n')
+# 
+#    file_out.close()
+#===============================================================================
 
-    tmpfile = efutil.temp_file(Object_name + ".sc")
-    outfile = open(tmpfile, 'w')
-    for lines in act_obj :
-        outfile.write("\n%s" % lines)
-    outfile.close()
-    # print("tmpfile>> %s" % tmpfile)
-    return tmpfile
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def _write(context, filepath,
+              EXPORT_SEL_ONLY,  # should go to another module
+              EXPORT_ANIMATION,  # should go to another module
+              ):  # Not used
+
+    # base_name, ext = os.path.splitext(filepath)
+    working_directory, current_blend_file = os.path.split(filepath)
+    #------------ current_file_name , extension =  current_blend_file.split('.')
+    
+    # create a folder inside working directory named 'sunflow_scene'
+    # if exist ok
+    # if not writable
+    # throw error 
+    
+    # sc names as follows 
+    # scene name + frame name + .sc
+    # 'include_(above name)'
+    
+    
+    base_name = os.path.join(working_directory, 'sunflow_scene\\')
+    ext = '.sc'
+    context_name = [base_name, 'frame', '', ext]  # Base name, scene name, frame number, extension
+    print ("context_name: " + '_'.join(context_name))
+    
+
+
+
+
+    scene = context.scene
+
+    # Exit edit mode before exporting, so current object states are exported properly.
+    if bpy.ops.object.mode_set.poll():
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+    orig_frame = scene.frame_current
+
+    # Export an animation?
+    if EXPORT_ANIMATION:
+        scene_frames = range(scene.frame_start, scene.frame_end + 1)  # Up to and including the end frame.
+    else:
+        scene_frames = [orig_frame]  # Dont export an animation.
+
+    # Loop through all frames in the scene and export.
+    for frame in scene_frames:
+        if EXPORT_ANIMATION:  # Add frame to the filepath.
+            context_name[2] = '_%.6d' % frame
+
+        scene.frame_set(frame, 0.0)
+        if EXPORT_SEL_ONLY:
+            objects = context.selected_objects
+        else:
+            objects = scene.objects
+
+        full_path = ''.join(context_name)
+
+        # erm... bit of a problem here, this can overwrite files when exporting frames. not too bad.
+        # EXPORT THE FILE.
+        write_file(full_path, objects, scene,)
+
+    scene.frame_set(orig_frame, 0.0)
+
+    # Restore old active scene.
+#   orig_scene.makeCurrent()
+#   Window.WaitCursor(0)
+
+
+"""
+Currently the exporter lacks these features:
+* multiple scene export (only active scene is written)
+* particles
+"""
+
+
+def CALL_exporter():
+    context = bpy.context
+    filepath = bpy.data.filepath
+    use_selection = False
+    use_animation = False
+    
+    _write(context, filepath,
+           EXPORT_SEL_ONLY=use_selection,
+           EXPORT_ANIMATION=use_animation,
+           )
+
+
+if __name__ == '__main__':
+    CALL_exporter()

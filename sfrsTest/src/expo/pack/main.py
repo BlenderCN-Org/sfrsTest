@@ -33,6 +33,7 @@ from .lamps import getLamps
 from .illumination import getIlluminationSettings
 from .instances import InstanceExporter
 from .meshes import write_mesh_file
+from .assemblefileout import pushexportfile
 
 def dict_merge(*dictionaries):
     cp = {}
@@ -94,11 +95,21 @@ def getExporter():
     #     print("KEYS> %s" % key)
     #===========================================================================
  
-    key = 'Instances'
-    if key in ObjectsRepository.keys():
-        for each in ObjectsRepository[key].items():
-            print("From Shader >>")
-            print (each)
+#     key = 'Instances'
+#     if key in ObjectsRepository.keys():
+#         for each in ObjectsRepository[key].items():
+#             print("From Shader >>")
+#             print (each)
+            
+    
+    print("{")
+    for keys in ObjectsRepository.keys():
+        print("'%s':" % keys)
+        print(ObjectsRepository[keys])
+        print(",")
+#         for each in ObjectsRepository[keys].items():
+#             print(each)
+    print("}")
  
     
 def ObjectsExporter(scene , ObjectsRepository={}, Export_instances=False): 

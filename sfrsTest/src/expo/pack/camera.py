@@ -192,7 +192,7 @@ def getActiveCamera(scene=None):
         else:
             CameraData['MotionBlurObjects'] = { ob.name : True for ob in bpy.data.groups[omblur_grpname].objects}
             
-        CameraData['Camera'] = act_cam
+        CameraData['Camera'] = { camera.name : act_cam}
 
         
     return CameraData 

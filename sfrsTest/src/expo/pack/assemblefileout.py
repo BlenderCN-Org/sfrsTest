@@ -25,11 +25,11 @@
 # --------------------------------------------------------------------------
 
 
+def pushexportfile(ObjectsRepository):
+    pass
 
-def Assemble_File(ObjectsRepository):
 
-   
-    
+def stub(ObjectsRepository):
     key = 'Instances'
     act_inst = []
     indent = 0
@@ -57,8 +57,3 @@ def Assemble_File(ObjectsRepository):
     for x in act_inst:
         instfile.write("\n%s" % x)
     instfile.close()
-
-
-
-if __name__ == '__main__':
-    pass
