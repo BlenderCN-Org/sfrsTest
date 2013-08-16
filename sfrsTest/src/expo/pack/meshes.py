@@ -42,45 +42,60 @@ from extensions_framework import util as efutil
 
 
 
+#===============================================================================
+# getPos
+#===============================================================================
+def MatixToString(obj_mat, duplis):
+    if duplis:
+        matrix_rows = [] 
+        for each_mat in obj_mat:
+            matrix_rows.append([ "%+0.4f" % element for rows in each_mat for element in rows ])
+    else:
+        matrix_rows = [ "%+0.4f" % element for rows in obj_mat for element in rows ]
+    return (matrix_rows)
+    
 
-#===============================================================================
-# getMotionBlurMatrices
-#===============================================================================
-def getMotionBlurMatrices(scene=None, object_name=None, steps=0):
+
+def motion_blur_object(scene , obj_name , duplis , steps):
+    print("<<<<motion_blur_object>>>>")
     current_frame , current_subframe = (scene.frame_current, scene.frame_subframe)
     mb_start = current_frame - math.ceil(steps / 2) + 1
     frame_steps = [ mb_start + n for n in range(0, steps) ]
     ref_matrix = None
     animated = False
-    matrices = [] 
-    obj = scene.objects[object_name]
-    base_matrix = obj.matrix_world.copy()
-    invert_matrix = base_matrix.inverted()    
+    
+    obj = scene.objects[obj_name]
+    if duplis :
+        obj.dupli_list_create(scene)
+        len_d = len(obj.dupli_list)
+        matrices = []
+        base_matrix = [ obj.dupli_list[i].matrix.copy() for i  in  range(len_d) ]
+        invert_matrix = [ base_matrix[i].inverted() for i  in  range(len_d) ]
+        obj.dupli_list_clear()
+    else:
+        matrices = [] 
+        base_matrix = obj.matrix_world.copy()
+        invert_matrix = base_matrix.inverted()   
+    inx = 0
     for sub_frame in frame_steps:
         scene.frame_set(sub_frame, current_subframe)
-        obj = scene.objects[object_name]
-        
-        sub_matrix = obj.matrix_world.copy()
-        
-        sub_matrix = invert_matrix * sub_matrix
-        
-        if ref_matrix == None:
-            ref_matrix = sub_matrix
-        animated |= sub_matrix != ref_matrix
-        matrx = MatixToList(sub_matrix)
-        matrices.append(matrx)
+        if duplis :            
+            obj = scene.objects[obj_name]
+            obj.dupli_list_create(scene)
+            sub_matrix_l = [ obj.dupli_list[i].matrix.copy() for i  in  range(len_d) ]
+            sub_matrix = [ invert_matrix[i] * sub_matrix_l[i] for i  in  range(len_d) ]
+            del sub_matrix_l
+            obj.dupli_list_clear()
+        else:
+            obj = scene.objects[obj_name]
+            sub_matrix = obj.matrix_world.copy()        
+            sub_matrix = invert_matrix * sub_matrix      
+        matrices.append(MatixToString(sub_matrix , duplis))
+        inx += 1
     scene.frame_set(current_frame, current_subframe)
-    if not animated:
-        matrices = []
+    del base_matrix
     return matrices
-                 
-#===============================================================================
-# getPos
-#===============================================================================
-def MatixToList(obj_mat):
-    matrix_rows = [ "%+0.4f" % element for rows in obj_mat for element in rows ]
-    return (matrix_rows)
-    
+
 
 
 
@@ -104,8 +119,6 @@ def mesh_triangulate(me):
     # FIXME: object visible ?? hide_render ???
     
 
-def motion_blur_object(scene , obj_name , duplis , steps):
-    pass
 
 
 def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True, mblurlist=[] , steps=0):
@@ -368,13 +381,15 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True, mblurl
             bpy.data.meshes.remove(me)
             
             # save to temp file
-            item_name = "%s.item.%03d" % (Object_name, item_index)
-            if is_dupli:
-                trans_mat = []
+            
+            trans_mat = []
+            if is_dupli and(Object_name in mblurlist):   
                 for matrix_each in range(steps):
                     trans_mat.append(transform_matrix[matrix_each][item_index - 1])
+                item_name = "%s.item.%03d" % (Object_name, item_index)
             else:
                 trans_mat = transform_matrix[:]
+                item_name = Object_name
             filename = save_object_data(item_name , Object_data)
             if filename != '':
                 item = {}

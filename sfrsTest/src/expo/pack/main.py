@@ -121,14 +121,16 @@ def ObjectsExporter(scene , ObjectsRepository={}, Export_instances=False):
     # nonlights = [obj for obj in obj_lst if obj not in ObjectsRepository['MeshLightObjects'].keys() ]
     # obj_lst = nonlights
     
+    MotionBlurList = ObjectsRepository['MotionBlurObjects'].keys()
+    
     if Export_instances:
         proxy_list = {}
         
         for objname in obj_lst:
-            turn_on_motion_blur = True
-            mblur_steps = 5
-            if objname in ObjectsRepository['MotionBlurObjects'].keys() :
-                mblur_steps = 5
+            turn_on_motion_blur = False
+            mblur_steps = 0
+            if objname in MotionBlurList :
+                mblur_steps = scene.camera.data.sunflow_camera.shutterTime
                 turn_on_motion_blur = True        
             cur_object = scene.objects[objname]
 
@@ -142,6 +144,7 @@ def ObjectsExporter(scene , ObjectsRepository={}, Export_instances=False):
                 dmix(ObjectsRepository, dupli_list, 'Instances')
                 proxy_list[objname] = True
                 print ("Instantiated>> %s" % objname)
+                MotionBlurList.pop(MotionBlurList.index(objname))
             if (
                 (cur_object.is_duplicator) & 
                 (cur_object.children == ()) & 
@@ -151,7 +154,7 @@ def ObjectsExporter(scene , ObjectsRepository={}, Export_instances=False):
                 dmix(ObjectsRepository, dupli_list, 'Instances')
                 proxy_list[objname] = True
                 print ("Instantiated>> %s" % objname)
-                
+                MotionBlurList.pop(MotionBlurList.index(objname))
             dmix(ObjectsRepository, proxy_list, 'Instantiated')
             
             
@@ -160,5 +163,5 @@ def ObjectsExporter(scene , ObjectsRepository={}, Export_instances=False):
         obj_lst = noninst 
         # print(obj_lst)   
     
-    ObjectsRepository['ExportedObjects'] = write_mesh_file(obj_lst, scene, not Export_instances)
+    ObjectsRepository['ExportedObjects'] = write_mesh_file(obj_lst, scene, not Export_instances , MotionBlurList , scene.camera.data.sunflow_camera.shutterTime)
     
