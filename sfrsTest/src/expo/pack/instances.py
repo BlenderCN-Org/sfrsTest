@@ -72,7 +72,7 @@ def InstanceExporter(scene , objname, turn_on_motion_blur, steps=0):
                 transform[objindx].append(xpos)
             obj_parent.dupli_list_clear()
         scene.frame_set(current_frame, current_subframe)
-
+        
         for dup in dupli_list.values():
             if obj_parent.dupli_type == 'FRAMES':
                 dup['trans'] = transform[dup['index'] - obj_parent.dupli_frames_start ]

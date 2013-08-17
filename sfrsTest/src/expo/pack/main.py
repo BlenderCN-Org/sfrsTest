@@ -121,8 +121,7 @@ def ObjectsExporter(scene , ObjectsRepository={}, Export_instances=False):
     # nonlights = [obj for obj in obj_lst if obj not in ObjectsRepository['MeshLightObjects'].keys() ]
     # obj_lst = nonlights
     
-    MotionBlurList = ObjectsRepository['MotionBlurObjects'].keys()
-    
+    MotionBlurList = [ key for key in ObjectsRepository['MotionBlurObjects'].keys()]
     if Export_instances:
         proxy_list = {}
         
@@ -144,7 +143,8 @@ def ObjectsExporter(scene , ObjectsRepository={}, Export_instances=False):
                 dmix(ObjectsRepository, dupli_list, 'Instances')
                 proxy_list[objname] = True
                 print ("Instantiated>> %s" % objname)
-                MotionBlurList.pop(MotionBlurList.index(objname))
+                if objname in  MotionBlurList:
+                    MotionBlurList.pop(MotionBlurList.index(objname))
             if (
                 (cur_object.is_duplicator) & 
                 (cur_object.children == ()) & 
@@ -154,7 +154,8 @@ def ObjectsExporter(scene , ObjectsRepository={}, Export_instances=False):
                 dmix(ObjectsRepository, dupli_list, 'Instances')
                 proxy_list[objname] = True
                 print ("Instantiated>> %s" % objname)
-                MotionBlurList.pop(MotionBlurList.index(objname))
+                if objname in  MotionBlurList:
+                    MotionBlurList.pop(MotionBlurList.index(objname))
             dmix(ObjectsRepository, proxy_list, 'Instantiated')
             
             

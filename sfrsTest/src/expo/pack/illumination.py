@@ -200,7 +200,7 @@ def scene_output():
     
     resolution_width = scene.render.resolution_x * scene.render.resolution_percentage / 100.0
     resolution_height = scene.render.resolution_y * scene.render.resolution_percentage / 100.0
-    resolution = "%0.2f  %0.2f" % (resolution_width , resolution_height)
+    resolution = "%d  %d" % (resolution_width , resolution_height)
     act_Illum.append("%s %s %s" % (space * indent , "resolution", resolution))    
     
     

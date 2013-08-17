@@ -171,8 +171,6 @@ def create_lamp_block(lamp):
         act_lit.append("%s %s %s" % (space * indent , "turbidity", lamp.data.sky.atmosphere_turbidity))
         act_lit.append("%s %s %s" % (space * indent , "samples ", lamp.data.sunflow_lamp.lightSamples))
         
-        
-        
     act_lit.append("%s %s %s" % (space * indent , "}", "")) 
     indent -= 1
     return ({ 'lamp' : act_lit })

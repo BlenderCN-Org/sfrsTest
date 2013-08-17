@@ -105,7 +105,7 @@ def create_shader_block(mat):
             texpath = '"' + texture_path(mat , texture_found(mat , 0)) + '"'
             act_mat.append("%s %s %s" % (space * indent , "texture ", texpath))      
         else:
-            act_mat.append("%s %s %s" % (space * indent , "color  ", "{")) 
+            act_mat.append("%s %s %s" % (space * indent , "diff ", "{")) 
             indent += 1
             act_mat.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(sfmat.diffuseColor))) 
             act_mat.append("%s %s %s" % (space * indent , "}", "")) 
