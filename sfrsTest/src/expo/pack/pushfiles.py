@@ -412,7 +412,7 @@ class Assemble():
         int_blk.append("%s %s %s" % (space * indent , "type", "meshlight"))
         int_blk.append("%s %s %s" % (space * indent , "name", sub_file))
         
-        mat = self._di['MeshLightObjects'][sub_file].keys()[0]
+        mat = [ mat for mat in self._di['MeshLightObjects'][sub_file].keys()][0]
         desc = self._di['Shaderlight'][mat]
         
         int_blk.extend(desc)
@@ -444,16 +444,6 @@ class Assemble():
 def testmod():
     ass = Assemble(dictionary, filepath, scenename, framenumber)
     ass.createObjectFiles()
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == '__main__':

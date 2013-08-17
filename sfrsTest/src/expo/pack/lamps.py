@@ -148,7 +148,11 @@ def create_lamp_block(lamp):
         act_lit.append("%s %s %s" % (space * indent , "source  ", position[0]))
         act_lit.append("%s %s %s" % (space * indent , "target  ", position[1]))
         
-        radius = 10 * math.tan(math.radians((lamp.data.spot_size) / 2.0))
+              
+        # radius = 10 * math.tan(math.radians((lamp.data.spot_size)) / 2.0)
+        # the incomming value is in radians so no need to convert.
+        radius = 10 * math.tan(lamp.data.spot_size / 2.0)
+        
         act_lit.append("%s %s %s" % (space * indent , "radius  ", "%+0.4f" % radius))
                 
         act_lit.append("%s %s %s" % (space * indent , "emit  ", "{")) 

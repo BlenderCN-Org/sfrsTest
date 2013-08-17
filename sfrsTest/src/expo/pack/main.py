@@ -33,7 +33,7 @@ from .lamps import getLamps
 from .illumination import getIlluminationSettings
 from .instances import InstanceExporter
 from .meshes import write_mesh_file
-from .assemblefileout import pushexportfile
+from .pushfiles import Assemble
 
 def dict_merge(*dictionaries):
     cp = {}
@@ -88,7 +88,17 @@ def getExporter():
     # MESH EXPORT 
     ObjectsExporter(scene , ObjectsRepository, Export_instances)
     
-    # Assemble_File(ObjectsRepository)
+    
+    
+    
+    
+    
+    filepath = r"E:\Graphics\Works\testbuildsfor253\268tests\newtest.blend"
+    framenumber = 1
+    scenename = 'Scene'
+    
+    ass = Assemble(ObjectsRepository, filepath, scenename, framenumber)
+    ass.createObjectFiles()
 
     #===========================================================================
     # for key in ObjectsRepository.keys():
@@ -102,14 +112,14 @@ def getExporter():
 #             print (each)
             
     
-    print("{")
-    for keys in ObjectsRepository.keys():
-        print("'%s':" % keys)
-        print(ObjectsRepository[keys])
-        print(",")
-#         for each in ObjectsRepository[keys].items():
-#             print(each)
-    print("}")
+#     print("{")
+#     for keys in ObjectsRepository.keys():
+#         print("'%s':" % keys)
+#         print(ObjectsRepository[keys])
+#         print(",")
+# #         for each in ObjectsRepository[keys].items():
+# #             print(each)
+#     print("}")
  
     
 def ObjectsExporter(scene , ObjectsRepository={}, Export_instances=False): 
