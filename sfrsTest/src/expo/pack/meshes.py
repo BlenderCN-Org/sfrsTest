@@ -213,7 +213,8 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True, mblurl
             #===================================================================
             
             try:
-                me = ob.to_mesh(scene, EXPORT_APPLY_MODIFIERS, 'PREVIEW', calc_tessface=False)
+                # me = ob.to_mesh(scene, EXPORT_APPLY_MODIFIERS, 'PREVIEW', calc_tessface=False)
+                me = ob.to_mesh(scene, EXPORT_APPLY_MODIFIERS, 'RENDER', calc_tessface=False)
             except RuntimeError:
                 me = None
 

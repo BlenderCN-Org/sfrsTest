@@ -33,7 +33,7 @@ from .lamps import getLamps
 from .illumination import getIlluminationSettings
 from .instances import InstanceExporter
 from .meshes import write_mesh_file
-from .pushfiles import Assemble
+from .makescfiles import SunflowSCFileSerializer
 
 def dict_merge(*dictionaries):
     cp = {}
@@ -88,17 +88,13 @@ def getExporter():
     # MESH EXPORT 
     ObjectsExporter(scene , ObjectsRepository, Export_instances)
     
-    
-    
-    
-    
-    
+        
     filepath = r"E:\Graphics\Works\testbuildsfor253\268tests\newtest.blend"
     framenumber = 1
     scenename = 'Scene'
     
-    ass = Assemble(ObjectsRepository, filepath, scenename, framenumber)
-    ass.createObjectFiles()
+    Serializer = SunflowSCFileSerializer(ObjectsRepository, filepath, scenename, framenumber)
+    Serializer.makeSunflowSCFiles()
 
     #===========================================================================
     # for key in ObjectsRepository.keys():

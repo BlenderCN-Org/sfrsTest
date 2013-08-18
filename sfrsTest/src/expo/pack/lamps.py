@@ -167,13 +167,27 @@ def create_lamp_block(lamp):
         act_lit.append("%s %s %s" % (space * indent , "type  ", "sunsky"))   
         act_lit.append("%s %s %s" % (space * indent , "up    ", "0  0  1"))  
         # TODO: can change this to include lightSunDirection which means the east direction from UI 
-        act_lit.append("%s %s %s" % (space * indent , "east  ", "0  1  0")) 
+        act_lit.append("%s %s %s" % (space * indent , "east  ", lamp.data.sunflow_lamp.lightSunEast)) 
         
         pos = getObjectPos(lamp , as_matrix=False)[0]
         act_lit.append("%s %s %s" % (space * indent , "sundir  ", pos)) 
         
         act_lit.append("%s %s %s" % (space * indent , "turbidity", lamp.data.sky.atmosphere_turbidity))
         act_lit.append("%s %s %s" % (space * indent , "samples ", lamp.data.sunflow_lamp.lightSamples))
+        
+    elif ((sfname == 'sunsky') & (bpy.context.scene.sunflow_world.worldLighting != 'sunsky')):        
+        act_lit.append("%s %s %s" % (space * indent , "type  ", "directional"))   
+        position = getObjectPos(lamp , as_matrix=False)
+        act_lit.append("%s %s %s" % (space * indent , "source  ", position[0]))
+        act_lit.append("%s %s %s" % (space * indent , "target  ", position[1]))
+        radius = 10000        
+        act_lit.append("%s %s %s" % (space * indent , "radius  ", "%+0.4f" % radius))                
+        act_lit.append("%s %s %s" % (space * indent , "emit  ", "{")) 
+        indent += 1
+        act_lit.append("%s %s %s" % (space * indent , '"sRGB nonlinear"', tr_color_str(lamp.data.color))) 
+        act_lit.append("%s %s %s" % (space * indent , "}", "")) 
+        indent -= 1        
+        act_lit.append("%s %s %s" % (space * indent , "intensity ", "%+0.4f" % lamp.data.sunflow_lamp.lightRadiance))
         
     act_lit.append("%s %s %s" % (space * indent , "}", "")) 
     indent -= 1
