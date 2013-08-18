@@ -413,13 +413,13 @@ def save_object_data(Object_name="", Object_data={}):
     if 'vertices' in Object_data.keys() and Object_data['vertices'] != [] :
         number_of_vertices = len(Object_data['vertices'])
     else:
-        print("Object has no vertices")
+        # print("Object has no vertices")
         return ''
     
     if 'faces' in Object_data.keys() and Object_data['faces'] != [] :
         number_of_faces = len(Object_data['faces'])
     else:
-        print("Object has no faces")
+        # print("Object has no faces")
         return ''
     
     if  'normal' in Object_data.keys() and Object_data['normal'] != [] :
@@ -428,7 +428,7 @@ def save_object_data(Object_name="", Object_data={}):
             return ''
         normal_type = 'facevarying'
     else:
-        print("Object has no normal vector")
+        # print("Object has no normal vector")
         normal_type = 'none'
     
     if 'uv' in Object_data.keys()  and Object_data['uv'] != [] :
@@ -437,7 +437,7 @@ def save_object_data(Object_name="", Object_data={}):
             return ''
         uv_type = 'facevarying'
     else:
-        print("Object has no uv's defined")
+        # print("Object has no uv's defined")
         uv_type = 'none'
     
     if 'matindex' in Object_data.keys()  and Object_data['matindex'] != [] :
@@ -446,7 +446,7 @@ def save_object_data(Object_name="", Object_data={}):
             return ''
         matindex_type = 'face_shaders'
     else:
-        print("Object has no face shaders's defined")
+        # print("Object has no face shaders's defined")
         matindex_type = ''
         
     
@@ -511,5 +511,4 @@ def save_object_data(Object_name="", Object_data={}):
     for lines in act_obj :
         outfile.write("\n%s" % lines)
     outfile.close()
-    # print("tmpfile>> %s" % tmpfile)
     return tmpfile

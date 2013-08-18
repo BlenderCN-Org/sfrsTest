@@ -309,7 +309,8 @@ class SunflowSCFileSerializer():
         filename = os.path.join(self._inclf , fname)
         if not self._writable(filename):
             return
-        self._write_output_block(int_blk, def_block_handle, fnl_blk, filename, True)        
+        self._write_output_block(int_blk, def_block_handle, fnl_blk, filename, True)    
+        def_block_handle.close()    
         self._includes.add(fname)
 
     def __compileObjectBlocksLight(self, objs):
@@ -349,7 +350,8 @@ class SunflowSCFileSerializer():
         filename = os.path.join(self._inclf , fname)
         if not self._writable(filename):
             return
-        self._write_output_block(int_blk, datablock, fnl_blk, filename, False)        
+        self._write_output_block(int_blk, datablock, fnl_blk, filename, False)    
+        def_block_handle.close()    
         self._includes.add(fname)
         
   
@@ -368,6 +370,16 @@ class SunflowSCFileSerializer():
             print(keys)
 
 
+    def _deleteTempFiles(self):
+        '''removes the temp files created in the export process'''
+        for objs in self._objlist:
+            dummy_file, sub_file = objs
+            if sub_file in self._di['ExportedObjects'].keys():
+                path = self._di['ExportedObjects'][sub_file]['objectfile']
+                if os.path.exists(path) :
+                    # print("path >> %s" % path)
+                    os.unlink(path)
+    
     def makeSunflowSCFiles(self):
         '''Call this method to generate the .sc, .geo.sc, .ins.sc files'''
         if not self._getFolderPath():
@@ -380,6 +392,7 @@ class SunflowSCFileSerializer():
         self._compileObjectBlocks()
         self._compileInstanceBlocks()
         self._compileMainBlock()
+        self._deleteTempFiles()
         
         
 

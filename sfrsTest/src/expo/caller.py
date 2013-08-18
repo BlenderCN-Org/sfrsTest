@@ -10,9 +10,9 @@ import sys
 path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(path)
 
-from pack import main 
+import pack
 
 import time
 ti = time.time()
-main.getExporter()
+pack.getExporter()
 print("Export time: %.2f" % (time.time() - ti))
