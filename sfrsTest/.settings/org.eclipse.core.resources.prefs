@@ -6,6 +6,7 @@ encoding//src/expo/pack/instances.py=utf8
 encoding//src/expo/pack/lamps.py=utf8
 encoding//src/expo/pack/main.py=utf8
 encoding//src/expo/pack/meshes.py=utf8
+encoding//src/expo/pack/services.py=utf8
 encoding//src/expo/pack/shaders.py=utf8
 encoding//src/sfrsMinimal/Illumination.py=utf8
 encoding//src/sfrsMinimal/InstanceExporter.py=utf8

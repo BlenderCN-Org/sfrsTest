@@ -25,35 +25,10 @@
 # --------------------------------------------------------------------------
 
 import bpy
+from .services import getObjectPos
+from .services import tr_color_str
+from .services import mix
 
-def tr_color_str(_color):
-    colors = [ "%+0.4f" % channel for channel in _color ]
-    return '  '.join(colors)
-
-
-def mix(MasterDict, InputDict , TargetName):
-    for keys in InputDict.keys():
-        if keys not in MasterDict.keys():
-            MasterDict[keys] = {}
-        if InputDict[keys] != []:
-            MasterDict[keys][TargetName] = InputDict[keys]
-   
-# TODO: replace with the common module (getObjectPos)
-def getObjectPos(obj, as_matrix=True):
-    obj_mat = obj.matrix_world.copy()
-    if not as_matrix :
-        obj_mat.transpose()
-        eye = obj_mat[3]
-        dir = obj_mat[2]
-        up = obj_mat[1]
-        target = eye - dir        
-        points = [ eye.to_tuple()[:3], target.to_tuple()[:3], up.to_tuple()[:3] ]        
-        pos = [ "%+0.4f %+0.4f %+0.4f" % elm for elm in points ]
-        return (pos)
-    else:
-        matrix_rows = [ "%+0.4f" % element for rows in obj_mat for element in rows ]
-        return (matrix_rows)
-              
 
 def occlu_select_color(scene):
     occlu_color = {}

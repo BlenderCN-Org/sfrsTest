@@ -27,31 +27,15 @@
 import os
 import bpy
 import math
-# Framework libs
-from extensions_framework import util as efutil
 
+from .services import tr_color_str
+from .services import make_path_real
+from .services import mix
 
-# TODO: replace with the common module (mix)
-def tr_color_str(_color):
-    colors = [ "%+0.4f" % channel for channel in _color ]
-    return '  '.join(colors)
-
-def make_path_real(path):
-    xfac = efutil.filesystem_path(path)
-    return os.path.abspath(xfac)
-
-# TODO: replace with the common module (mix)
-def mix(SceneMaterials, shaders , name):
-    for keys in shaders.keys():
-        if keys not in SceneMaterials.keys():
-            SceneMaterials[keys] = {}
-        if shaders[keys] != []:
-            SceneMaterials[keys][name] = shaders[keys]
     
 def texture_path(mat, mat_slot):
     return make_path_real(mat.texture_slots[mat_slot - 1].texture.image.filepath)
         
-
 def texture_found(mat, mat_type):
     slots = len(mat.texture_slots)
     if slots <= 0:

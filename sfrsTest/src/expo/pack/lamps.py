@@ -24,13 +24,15 @@
 # Author                              NodeBench
 # --------------------------------------------------------------------------
 
-import os
+
 import bpy
 import math
 import mathutils
-# Framework libs
-from extensions_framework import util as efutil
 
+from .services import tr_color_str
+from .services import mix
+from .services import file_exists
+from .services import getObjectPos
 
 mappings = {
             'HEMI': 'spherical',
@@ -41,31 +43,6 @@ mappings = {
             'world_texture': 'ibl',
             'mesh': 'meshlight'
             }
-
-# TODO: replace with the common module (mix)
-def mix(MasterDict, InputDict , TargetName):
-    for keys in InputDict.keys():
-        if keys not in MasterDict.keys():
-            MasterDict[keys] = {}
-        if InputDict[keys] != []:
-            MasterDict[keys][TargetName] = InputDict[keys]
-        
-def make_path_real(path):
-    xfac = efutil.filesystem_path(path)
-    return os.path.abspath(xfac)
-
-def file_exists(filepath):
-    path = make_path_real(filepath)
-    if os.path.exists(path):
-        return True
-    else:
-        return False
-
-# TODO: replace with the common module (tr_color_str)
-def tr_color_str(_color):
-    colors = [ "%+0.4f" % channel for channel in _color ]
-    return '  '.join(colors)
-
 
 def getObjectLampSize(light):    
     obj_matrix = light.matrix_world.copy()    
@@ -78,22 +55,6 @@ def getObjectLampSize(light):
     trFaces = [[0, 1, 2], [2, 3, 0]]
     return(trArea, trFaces)
     
-# TODO: replace with the common module (getObjectPos)
-def getObjectPos(obj, as_matrix=True):
-    obj_mat = obj.matrix_world.copy()
-    if not as_matrix :
-        obj_mat.transpose()
-        eye = obj_mat[3]
-        dir = obj_mat[2]
-        up = obj_mat[1]
-        target = eye - dir        
-        points = [ eye.to_tuple()[:3], target.to_tuple()[:3], up.to_tuple()[:3] ]        
-        pos = [ "%+0.4f %+0.4f %+0.4f" % elm for elm in points ]
-        return (pos)
-    else:
-        matrix_rows = [ "%+0.4f" % element for rows in obj_mat for element in rows ]
-        return (matrix_rows)
-        
 
 def create_lamp_block(lamp):    
     # sunflow_lamp
@@ -184,7 +145,7 @@ def create_lamp_block(lamp):
     elif ((sfname == 'sunsky') & (bpy.context.scene.sunflow_world.worldLighting == 'sunsky')):   
         act_lit.append("%s %s %s" % (space * indent , "type  ", "sunsky"))   
         act_lit.append("%s %s %s" % (space * indent , "up    ", "0  0  1"))  
-        # TODO: can change this to include lightSunDirection which means the east direction from UI 
+
         act_lit.append("%s %s %s" % (space * indent , "east  ", lamp.data.sunflow_lamp.lightSunEast)) 
         
         pos = getObjectPos(lamp , as_matrix=False)[0]

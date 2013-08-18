@@ -27,7 +27,7 @@
 import bpy
 import math
 
-
+from .services import getObjectPos
 
 
 def getDepthOfField(camera , EmptyActor):
@@ -51,22 +51,6 @@ def calculateDOF(camera, dof_object, scene):
     else:
         return (0.0 , 0.0)
 
-# TODO: replace with the common module (getObjectPos)
-def getCameraPos(obj, as_matrix=True):
-    obj_mat = obj.matrix_world.copy()
-    if not as_matrix :
-        obj_mat.transpose()
-        eye = obj_mat[3]
-        dir = obj_mat[2]
-        up = obj_mat[1]
-        target = eye - dir        
-        points = [ eye.to_tuple()[:3], target.to_tuple()[:3], up.to_tuple()[:3] ]        
-        pos = [ "%+0.4f %+0.4f %+0.4f" % elm for elm in points ]
-        return (pos)
-    else:
-        matrix_rows = [ "%+0.4f" % element for rows in obj_mat for element in rows ]
-        return (matrix_rows)
-        
 
 def getCameraMotionBlurMatrices(scene=None, camera=None, steps=0, as_matrix=True):
     current_frame , current_subframe = (scene.frame_current, scene.frame_subframe)
@@ -76,7 +60,7 @@ def getCameraMotionBlurMatrices(scene=None, camera=None, steps=0, as_matrix=True
     for sub_frame in frame_steps:
         scene.frame_set(sub_frame, current_subframe)
         obj = scene.objects['Camera']
-        matrices.append(getCameraPos(obj, as_matrix))
+        matrices.append(getObjectPos(obj, as_matrix))
     scene.frame_set(current_frame, current_subframe)
     return matrices
                  
@@ -96,7 +80,7 @@ def getActiveCamera(scene=None):
         fov = math.degrees(camera.data.angle)
         aspect = float(scene.render.resolution_x) / float (scene.render.resolution_y)
         shift = (camera.data.shift_x , camera.data.shift_y) 
-        position = getCameraPos(camera, as_matrix)
+        position = getObjectPos(camera, as_matrix)
             
         if cam.cameraMBlur:
             matrices = getCameraMotionBlurMatrices(scene, camera, cam.cameraMBlurSteps, as_matrix)
