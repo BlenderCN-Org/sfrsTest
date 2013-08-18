@@ -38,7 +38,7 @@ def mix(MasterDict, InputDict , TargetName):
         if InputDict[keys] != []:
             MasterDict[keys][TargetName] = InputDict[keys]
    
-
+# TODO: replace with the common module (getObjectPos)
 def getObjectPos(obj, as_matrix=True):
     obj_mat = obj.matrix_world.copy()
     if not as_matrix :

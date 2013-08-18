@@ -31,7 +31,7 @@ import math
 from extensions_framework import util as efutil
 
 
-
+# TODO: replace with the common module (mix)
 def tr_color_str(_color):
     colors = [ "%+0.4f" % channel for channel in _color ]
     return '  '.join(colors)
@@ -40,6 +40,17 @@ def make_path_real(path):
     xfac = efutil.filesystem_path(path)
     return os.path.abspath(xfac)
 
+# TODO: replace with the common module (mix)
+def mix(SceneMaterials, shaders , name):
+    for keys in shaders.keys():
+        if keys not in SceneMaterials.keys():
+            SceneMaterials[keys] = {}
+        if shaders[keys] != []:
+            SceneMaterials[keys][name] = shaders[keys]
+    
+def texture_path(mat, mat_slot):
+    return make_path_real(mat.texture_slots[mat_slot - 1].texture.image.filepath)
+        
 
 def texture_found(mat, mat_type):
     slots = len(mat.texture_slots)
@@ -74,9 +85,6 @@ def texture_found(mat, mat_type):
         if (slot.use_map_displacement & (mat_type == 3)):
             return mat_slot + 1
     return 0
-
-def texture_path(mat, mat_slot):
-    return make_path_real(mat.texture_slots[mat_slot - 1].texture.image.filepath)
 
 
 def create_shader_block(mat):
@@ -324,13 +332,6 @@ def create_shader_block(mat):
     
     return report
         
-def mix(SceneMaterials, shaders , name):
-    for keys in shaders.keys():
-        if keys not in SceneMaterials.keys():
-            SceneMaterials[keys] = {}
-        if shaders[keys] != []:
-            SceneMaterials[keys][name] = shaders[keys]
-            
 
 def getShadersInScene(scene):
     scene_mat = bpy.data.materials

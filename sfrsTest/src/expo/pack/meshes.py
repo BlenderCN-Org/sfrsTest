@@ -117,10 +117,6 @@ def mesh_triangulate(me):
     bm.free()
 
     # FIXME: object visible ?? hide_render ???
-    
-
-
-
 def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True, mblurlist=[] , steps=0):
     """
     Basic Mesh Export function. This will directly write to a temp file. 
@@ -409,12 +405,10 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True, mblurl
 
  
     # copy all collected files.
-    # print("OBJ Export time: %.2f" % (time.time() - time1))
     return return_dict
 
 
-def save_object_data(Object_name="", Object_data={}):
-    
+def save_object_data(Object_name="", Object_data={}):    
     
     if 'vertices' in Object_data.keys() and Object_data['vertices'] != [] :
         number_of_vertices = len(Object_data['vertices'])

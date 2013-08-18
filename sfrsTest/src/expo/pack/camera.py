@@ -29,14 +29,6 @@ import math
 
 
 
-def test():
-    import time
-    ti = time.time()
-    scene = bpy.context.scene
-    test_dict = getActiveCamera(scene)
-    for each in test_dict['cameradata']:
-        print(each)    
-    print("Export time: %.2f" % (time.time() - ti))
 
 def getDepthOfField(camera , EmptyActor):
     cam = camera.matrix_world.copy()
@@ -59,7 +51,7 @@ def calculateDOF(camera, dof_object, scene):
     else:
         return (0.0 , 0.0)
 
-
+# TODO: replace with the common module (getObjectPos)
 def getCameraPos(obj, as_matrix=True):
     obj_mat = obj.matrix_world.copy()
     if not as_matrix :
@@ -206,5 +198,3 @@ def getSceneCamera(scene):
         return {}
 
 
-if __name__ == '__main__':
-    test()

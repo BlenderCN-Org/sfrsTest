@@ -42,8 +42,26 @@ mappings = {
             'mesh': 'meshlight'
             }
 
+# TODO: replace with the common module (mix)
+def mix(MasterDict, InputDict , TargetName):
+    for keys in InputDict.keys():
+        if keys not in MasterDict.keys():
+            MasterDict[keys] = {}
+        if InputDict[keys] != []:
+            MasterDict[keys][TargetName] = InputDict[keys]
+        
+def make_path_real(path):
+    xfac = efutil.filesystem_path(path)
+    return os.path.abspath(xfac)
 
+def file_exists(filepath):
+    path = make_path_real(filepath)
+    if os.path.exists(path):
+        return True
+    else:
+        return False
 
+# TODO: replace with the common module (tr_color_str)
 def tr_color_str(_color):
     colors = [ "%+0.4f" % channel for channel in _color ]
     return '  '.join(colors)
@@ -60,7 +78,7 @@ def getObjectLampSize(light):
     trFaces = [[0, 1, 2], [2, 3, 0]]
     return(trArea, trFaces)
     
-
+# TODO: replace with the common module (getObjectPos)
 def getObjectPos(obj, as_matrix=True):
     obj_mat = obj.matrix_world.copy()
     if not as_matrix :
@@ -193,23 +211,6 @@ def create_lamp_block(lamp):
     indent -= 1
     return ({ 'lamp' : act_lit })
     
-def mix(MasterDict, InputDict , TargetName):
-    for keys in InputDict.keys():
-        if keys not in MasterDict.keys():
-            MasterDict[keys] = {}
-        if InputDict[keys] != []:
-            MasterDict[keys][TargetName] = InputDict[keys]
-        
-def make_path_real(path):
-    xfac = efutil.filesystem_path(path)
-    return os.path.abspath(xfac)
-
-def file_exists(filepath):
-    path = make_path_real(filepath)
-    if os.path.exists(path):
-        return True
-    else:
-        return False
 
 
 def world_ibl_lighting(scene):
