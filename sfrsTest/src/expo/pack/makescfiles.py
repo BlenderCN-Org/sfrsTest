@@ -51,13 +51,17 @@ class SunflowSCFileSerializer():
         except:
             return False
     
-    def _getFolderPath(self):
+    def _getFolderPath_depreciated(self):
         '''retrive the folder path from the blend filepath, return True if success'''
         self._dp , self._ne = os.path.split(self._fp)
         self._dp = os.path.abspath(self._dp)
         self._ne = self._ne.split('.')[:-1]
         return os.path.exists(self._dp)        
-    
+        
+    def _getFolderPath(self):
+        '''retrive the folder path from the blend filepath, return True if success'''
+        self._dp = self._fp
+        return os.path.exists(self._dp)  
     
     def _getObjectsList(self):
         '''convert the ExportedObjects dictionary keys to a list'''
@@ -166,6 +170,17 @@ class SunflowSCFileSerializer():
             self._write_output_block(block, [""] , [] , self._fh, False)
     
     
+    def _comipleGlobalIllumination(self):
+        '''write Global Illumination block to .sc file'''
+        key = 'gi'
+        if key not in self._di.keys():
+            return
+        if 'illumination' not in self._di[key].keys():
+            return
+        block = self._di[key]['illumination']
+        self._write_output_block(block, [""] , [] , self._fh, False)
+    
+    
     def _compileMainBlock(self):
         '''write the main .sc file'''
         self._name = ("%s.%03d" % (self._sn , self._fn))
@@ -175,7 +190,7 @@ class SunflowSCFileSerializer():
         else:
             os.remove(self._fh)
         
-        key_list = ['output', 'trace' , 'background' , 'bucket' , 'caustics' , 'gi']
+        key_list = ['output', 'trace' , 'background' , 'bucket' , 'caustics' ]
 
         for key in key_list:
             if key not in self._di.keys():
@@ -184,7 +199,8 @@ class SunflowSCFileSerializer():
                 continue
             block = self._di[key][key]
             self._write_output_block(block, [""] , [] , self._fh, False)
-         
+        
+        self._comipleGlobalIllumination()
         self._comipleShaderBlock()
         self._compileLightsBlock()
         self._compileLightsWorldBlock()

@@ -27,6 +27,7 @@
 
 
 import os
+import copy
 # Framework libs
 from extensions_framework import util as efutil
 
@@ -72,3 +73,14 @@ def getObjectPos(obj, as_matrix=True):
         matrix_rows = [ "%+0.4f" % element for rows in obj_mat for element in rows ]
         return (matrix_rows)
             
+def dict_merge(*dictionaries):
+    cp = {}
+    for dic in dictionaries:
+        cp.update(copy.deepcopy(dic))
+    return cp
+
+def dmix(MasterDict, InputDict , TargetName):
+    if TargetName not in MasterDict.keys():
+        MasterDict[TargetName] = {}        
+    for keys in InputDict.keys():
+        MasterDict[TargetName][keys] = InputDict[keys]

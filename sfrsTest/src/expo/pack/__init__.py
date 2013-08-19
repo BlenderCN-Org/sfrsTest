@@ -25,7 +25,6 @@
 # --------------------------------------------------------------------------
 
 import bpy
-import copy
 
 from .camera import getSceneCamera
 from .shaders import getShadersInScene
@@ -34,18 +33,9 @@ from .illumination import getIlluminationSettings
 from .instances import InstanceExporter
 from .meshes import write_mesh_file
 from .makescfiles import SunflowSCFileSerializer
+from .services import dmix
+from .services import dict_merge
 
-def dict_merge(*dictionaries):
-    cp = {}
-    for dic in dictionaries:
-        cp.update(copy.deepcopy(dic))
-    return cp
-
-def dmix(MasterDict, InputDict , TargetName):
-    if TargetName not in MasterDict.keys():
-        MasterDict[TargetName] = {}        
-    for keys in InputDict.keys():
-        MasterDict[TargetName][keys] = InputDict[keys]
 
 def getExporter():
     
@@ -60,6 +50,7 @@ def getExporter():
                 'ExportedObjects':{},
                 'Instances':{},
                 'Instantiated':{},
+                'Particles' :{},
                          }
     
     scene = bpy.context.scene   
@@ -89,12 +80,25 @@ def getExporter():
     ObjectsExporter(scene , ObjectsRepository, Export_instances)
     
         
-    filepath = r"E:\Graphics\Works\testbuildsfor253\268tests\newtest.blend"
+    filepath = r"E:\Graphics\Works\testbuildsfor253\268tests"
     framenumber = 1
     scenename = 'Scene'
     
     Serializer = SunflowSCFileSerializer(ObjectsRepository, filepath, scenename, framenumber)
     Serializer.makeSunflowSCFiles()
+    
+    print("{")
+    for keys in ObjectsRepository.keys():
+        print("'%s':" % keys)
+        print(ObjectsRepository[keys])
+        print(",")
+#         for each in ObjectsRepository[keys].items():
+#             print(each)
+    print("}")
+    
+    # free memory
+    del Serializer
+    del ObjectsRepository
 
     #===========================================================================
     # for key in ObjectsRepository.keys():
@@ -108,14 +112,7 @@ def getExporter():
 #             print (each)
             
     
-#     print("{")
-#     for keys in ObjectsRepository.keys():
-#         print("'%s':" % keys)
-#         print(ObjectsRepository[keys])
-#         print(",")
-# #         for each in ObjectsRepository[keys].items():
-# #             print(each)
-#     print("}")
+
  
     
 def ObjectsExporter(scene , ObjectsRepository={}, Export_instances=False): 

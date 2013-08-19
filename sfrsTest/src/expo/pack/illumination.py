@@ -261,61 +261,6 @@ def scene_override():
     
 
 
-def getCommandLineArgs(IllumSettings):
-    argument = {}
-    scene = bpy.context.scene
-    quickmappings = {
-                    'quicknone': '',
-                    'quickuvs': '-quick_uvs',
-                    'quicknormals': '-quick_normals',
-                    'quickid': '-quick_id',
-                    'quickprims': '-quick_prims',
-                    'quickgray': '-quick_gray',
-                    'quickwire': '-quick_wire',
-                    'quickambocc': '-quick_ambocc'  ,
-                     }
-    if  scene.sunflow_passes.quickmode == 'quickwire':
-        extra = " -aa %s %s -filter %s " % (scene.sunflow_antialiasing.adaptiveAAMin , scene.sunflow_antialiasing.adaptiveAAMax, scene.sunflow_antialiasing.imageFilter)
-    elif scene.sunflow_passes.quickmode == 'quickambocc':
-        extra = " %s " % scene.sunflow_passes.distOcclusion
-    else:
-        extra = ""        
-    argument['quick'] = quickmappings[scene.sunflow_passes.quickmode] + extra
-    
-    if scene.render.threads_mode == 'FIXED':
-        threads = "-threads %s" % scene.render.threads
-    else:
-        threads = ''       
-    argument['threads'] = threads
-    
-#     if scene.sunflow_performance.useCacheObjects:
-#         argument['usecache'] = True
-#     else:
-#         argument['usecache'] = False
-        
-    if scene.sunflow_performance.useSmallMesh:
-        argument['smallmesh'] = '-smallmesh'
-    else:
-        argument['smallmesh'] = ''
-        
-    if scene.sunflow_performance.threadHighPriority  :
-        argument['threadprio'] = '-hipri'
-    else:
-        argument['threadprio'] = ''
-        
-    if scene.sunflow_performance.enableVerbosity:
-        argument['verbosity'] = '-verbosity 4'
-    else:
-        argument['verbosity'] = ''
-        
-#     if scene.render.use_instances:
-#         argument['useinstances'] = True
-#     else:
-#         argument['useinstances'] = False
-          
-    IllumSettings['cmd'] = argument
-    
-
 
 def getIlluminationSettings(scene): 
     IllumSettings = {}
@@ -326,7 +271,7 @@ def getIlluminationSettings(scene):
     mix(IllumSettings , scene_bucket() , 'bucket')
     mix(IllumSettings , scene_background() , 'background')
     mix(IllumSettings , scene_override() , 'override')
-    getCommandLineArgs(IllumSettings)
+    # getCommandLineArgs(IllumSettings)
         
     return IllumSettings
 #     if 'cmd' in IllumSettings.keys():
