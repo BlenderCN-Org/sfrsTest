@@ -4,6 +4,7 @@ Created on 16-Aug-2013
 '''
 
 import os
+from .services import is_dupli_child
 
 class SunflowSCFileSerializer():
     
@@ -280,37 +281,41 @@ class SunflowSCFileSerializer():
         indent = 0
         space = "        "
         
+
         int_blk.append("%s %s %s" % (space * indent , "object", "{"))
         indent += 1
-        num_of_shaders = len(block_dirct['materials'])
-        if  num_of_shaders > 1:
-            int_blk.append("%s %s %s" % (space * indent , "shaders", num_of_shaders))
-            indent += 1
-            for each_shdr in block_dirct['materials']:
-                int_blk.append("%s %s %s" % (space * indent , "", each_shdr))
-            indent -= 1
+        if not is_dupli_child(sub_file):
+            num_of_shaders = len(block_dirct['materials'])
+            if  num_of_shaders > 1:
+                int_blk.append("%s %s %s" % (space * indent , "shaders", num_of_shaders))
+                indent += 1
+                for each_shdr in block_dirct['materials']:
+                    int_blk.append("%s %s %s" % (space * indent , "", each_shdr))
+                indent -= 1
+            else:
+                int_blk.append("%s %s %s" % (space * indent , "shader", block_dirct['materials'][0]))        
+            
+            num_of_shaders = len(block_dirct['modifiers'])
+            if  num_of_shaders > 1:
+                int_blk.append("%s %s %s" % (space * indent , "modifiers", num_of_shaders))
+                indent += 1
+                for each_shdr in block_dirct['modifiers']:
+                    int_blk.append("%s %s %s" % (space * indent , "", each_shdr))
+                indent -= 1
+            else:
+                int_blk.append("%s %s %s" % (space * indent , "modifier", block_dirct['modifiers'][0]))
+            
+            num_of_transforms = len(block_dirct['trans_mat']) 
+            if num_of_transforms > 0 :
+                int_blk.append("%s %s %s" % (space * indent , "transform", ""))
+                int_blk.append("%s %s %s" % (space * indent , "steps ", num_of_transforms))
+                int_blk.append("%s %s %s" % (space * indent , "times", " 0.0 1.0"))
+                indent += 1
+                for each_trn in block_dirct['trans_mat']:
+                    int_blk.append("%s %s %s" % (space * indent , "row", ' '.join(each_trn)))
+                indent -= 1
         else:
-            int_blk.append("%s %s %s" % (space * indent , "shader", block_dirct['materials'][0]))        
-        
-        num_of_shaders = len(block_dirct['modifiers'])
-        if  num_of_shaders > 1:
-            int_blk.append("%s %s %s" % (space * indent , "modifiers", num_of_shaders))
-            indent += 1
-            for each_shdr in block_dirct['modifiers']:
-                int_blk.append("%s %s %s" % (space * indent , "", each_shdr))
-            indent -= 1
-        else:
-            int_blk.append("%s %s %s" % (space * indent , "modifier", block_dirct['modifiers'][0]))
-        
-        num_of_transforms = len(block_dirct['trans_mat']) 
-        if num_of_transforms > 0 :
-            int_blk.append("%s %s %s" % (space * indent , "transform", ""))
-            int_blk.append("%s %s %s" % (space * indent , "steps ", num_of_transforms))
-            int_blk.append("%s %s %s" % (space * indent , "times", " 0.0 1.0"))
-            indent += 1
-            for each_trn in block_dirct['trans_mat']:
-                int_blk.append("%s %s %s" % (space * indent , "row", ' '.join(each_trn)))
-            indent -= 1
+            int_blk.append("%s %s %s" % (space * indent , "noinstance", ""))
         int_blk.append("%s %s %s" % (space * indent , "type", "generic-mesh"))
         int_blk.append("%s %s %s" % (space * indent , "name", sub_file))
         

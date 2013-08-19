@@ -156,9 +156,10 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True, mblurl
         is_dupli = False
         transform_matrix = []
         
-        
+        print("Donot_Allow_Instancing %s" % Donot_Allow_Instancing)
         if Donot_Allow_Instancing:
             # ignore dupli children
+            
             if ob_main.parent and ob_main.parent.dupli_type in {'VERTS', 'FACES'}:
                 # XXX
                 print(ob_main.name, 'is a dupli child - ignoring')
@@ -380,9 +381,15 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True, mblurl
             # save to temp file
             
             trans_mat = []
+            print(Object_name)
             if is_dupli and(Object_name in mblurlist):   
                 for matrix_each in range(steps):
                     trans_mat.append(transform_matrix[matrix_each][item_index - 1])
+                item_name = "%s.item.%03d" % (Object_name, item_index)
+                
+            # FIXME: in package include this
+            elif is_dupli :
+                trans_mat = transform_matrix[:]
                 item_name = "%s.item.%03d" % (Object_name, item_index)
             else:
                 trans_mat = transform_matrix[:]
