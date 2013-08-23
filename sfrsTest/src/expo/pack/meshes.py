@@ -311,7 +311,8 @@ def write_mesh_file(objects_namelist, scene, Donot_Allow_Instancing=True, mblurl
             # Export Faces Data
             Object_data['faces'] = []
             for face , f_index in face_index_pairs:
-                coordinate_str = [ "%06d" % coordinate for coordinate in face.vertices[:] ]
+                # coordinate_str = [ "%06d" % coordinate for coordinate in face.vertices[:] ]
+                coordinate_str = [ "%04d" % coordinate for coordinate in face.vertices[:] ]
                 Object_data['faces'].append(coordinate_str)
             
 
