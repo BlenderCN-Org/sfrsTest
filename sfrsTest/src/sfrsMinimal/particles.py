@@ -1,55 +1,80 @@
 '''
-Created on 20-Aug-2013
+Created on 21-Aug-2013
+
 @author: AppleCart
 '''
-
-import random
-
-file_ = r"E:\Graphics\Render\testparticles\_include.Scene.001\particle.sc"
+import bpy
 
 
-def writeout(asset, m):
-    fl = open(file_, m)
-    for lines in asset:
-        fl.write("\n%s" % lines)    
-    fl.close()
+def getParticleSystem():
+#     ob = bpy.context.scene.objects['Plane']
+#     mod = ob.modifiers[0]
+#     psys = ob.particle_systems[0]
+# 
+#     steps = psys.settings.draw_step
+#     steps = 2 ** steps + 1
+#     
+#     num_parents = len(psys.particles)
+#     num_children = len(psys.child_particles)
+#       
+#     print("num parents: " + str(num_parents))
+#     print("num children: " + str(num_children))
+#       
+#     for pindex in range(0, num_parents + num_children):
+#         print("particle " + str(pindex))
+#         for step in range(0, steps):
+#             co = psys.co_hair(ob, mod, pindex, step)
+#             print("step " + str(step) + ": " + str(co)) 
 
-def generate():
-    asset = []
-    indent = 0
-    space = "        "
-    part_points = []
-    num_point = 2000  # 200000
+
+    import bpy
+      
+    ob = bpy.context.active_object
+    mod = ob.modifiers[0]
+    psys = mod.particle_system
+      
+    steps = psys.settings.draw_step
+    steps = 2 ** steps + 1
+      
+    num_parents = len(psys.particles)
+    num_children = len(psys.child_particles)
+      
+    print("num parents: " + str(num_parents))
+    print("num children: " + str(num_children))
+      
+    for pindex in range(0, num_parents + num_children):
+        print("particle " + str(pindex))
+        for step in range(0, steps):
+            co = psys.co_hair(ob, mod, pindex, step)
+            print("step " + str(step) + ": " + str(co))
+
     
-    limit = 3
-    
-
-    
-    asset.append("%s %s %s" % (space * indent , "object", "{")) 
-    indent += 1
-    asset.append("%s %s %s" % (space * indent , "shader", "Material.001"))
-    asset.append("%s %s %s" % (space * indent , "type", "particles"))
-    asset.append("%s %s %s" % (space * indent , "points", num_point))
-    writeout(asset, 'w')
-    indent += 1
-    step = num_point / 1000
-    n = 0
-    for x in xrange(step):
-        asset = []
-        # print("step %s" % x)
-        for each in xrange(1000):
-            
-            ut = [ (limit - (2 * limit * random.random())) for x in range(3) ] 
-            pt = "  %+0.4f  %+0.4f  %+0.4f" % (ut[0], ut[1], ut[2])
-            asset.append("%s %s %s" % (space * indent , "", pt))
-        writeout(asset, 'a')     
-    asset = []   
-    indent -= 1
-    asset.append("%s %s %s" % (space * indent , "radius ", "0.1"))
-    indent -= 1
-    asset.append("%s %s %s" % (space * indent , "}", ""))    
-    writeout(asset, 'a')
-    print("Finished %s" % n)
 
 if __name__ == '__main__':
-    generate()
+    getParticleSystem()
+    
+    
+    
+    
+#===============================================================================
+# import bpy
+#  
+# ob = bpy.context.active_object
+# mod = ob.modifiers[0]
+# psys = mod.particle_system
+#  
+# steps = psys.settings.draw_step
+# steps = 2**steps + 1
+#  
+# num_parents = len(psys.particles)
+# num_children = len(psys.child_particles)
+#  
+# print("num parents: " + str(num_parents))
+# print("num children: " + str(num_children))
+#  
+# for pindex in range(0, num_parents + num_children):
+#     print("particle " + str(pindex))
+#     for step in range(0, steps):
+#         co = psys.co_hair(ob, mod, pindex, step)
+#         print("step " + str(step) + ": " + str(co))
+#===============================================================================
